@@ -96,6 +96,7 @@ func router() http.Handler {
 		phoneUser := v1.Group("/phone")
 		{
 			phoneUser.POST("/useRecord", phoneUseController.UploadRecord)
+			phoneUser.GET("/overview", phoneUseController.Overview)
 		}
 	}
 

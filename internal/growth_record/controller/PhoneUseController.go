@@ -30,3 +30,12 @@ func (p *PhoneUseController) UploadRecord(c *gin.Context) {
 	c.JSON(http.StatusOK, "upload success")
 }
 
+func (p *PhoneUseController) Overview(c *gin.Context) {
+	data, err := p.srv.Overview()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, data)
+}
+
