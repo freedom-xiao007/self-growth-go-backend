@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/kamva/mgm/v3"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 	"seltGrowth/internal/growth_record/controller"
@@ -75,6 +77,7 @@ func router() http.Handler {
 	router := gin.Default()
 	productHandler := newProductHandler()
 	helloHandler := controller.NewHelloHandler()
+	phoneUseController := controller.NewPhoneUseController()
 	// 路由分组、中间件、认证
 	v1 := router.Group("/v1")
 	{
@@ -89,12 +92,27 @@ func router() http.Handler {
 		{
 			hello.GET("", helloHandler.Hello)
 		}
+
+		phoneUser := v1.Group("/phone")
+		{
+			phoneUser.POST("/useRecord", phoneUseController.UploadRecord)
+		}
 	}
 
 	return router
 }
 
+
+func initMongodb() {
+	// Setup the mgm default config
+	err := mgm.SetDefaultConfig(nil, "phone_record", options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
+	initMongodb()
 	var eg errgroup.Group
 
 	// 一进程多端口
@@ -105,12 +123,12 @@ func main() {
 		WriteTimeout: 9 * time.Second,
 	}
 
-	//secureServer := &http.Server{
-	//	Addr:         ":8442",
-	//	Handler:      router(),
-	//	ReadTimeout:  4 * time.Second,
-	//	WriteTimeout: 9 * time.Second,
-	//}
+	secureServer := &http.Server{
+		Addr:         "192.168.1.3:8443",
+		Handler:      router(),
+		ReadTimeout:  4 * time.Second,
+		WriteTimeout: 9 * time.Second,
+	}
 
 	eg.Go(func() error {
 		err := insecureServer.ListenAndServe()
@@ -120,13 +138,13 @@ func main() {
 		return err
 	})
 
-	//eg.Go(func() error {
-	//	err := secureServer.ListenAndServeTLS("server.pem", "server.key")
-	//	if err != nil && err != http.ErrServerClosed {
-	//		log.Fatal(err)
-	//	}
-	//	return err
-	//})
+	eg.Go(func() error {
+		err := secureServer.ListenAndServeTLS("D:\\temp\\https\\server.crt", "D:\\temp\\https\\server_no_passwd.key")
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+		return err
+	})
 
 	if err := eg.Wait(); err != nil {
 		log.Fatal(err)
