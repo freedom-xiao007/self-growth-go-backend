@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	v1 "seltGrowth/internal/api/v1"
 	srvV1 "seltGrowth/internal/growth_record/service/v1"
@@ -19,6 +20,7 @@ func NewPhoneUseController() *PhoneUseController {
 
 func (p *PhoneUseController) UploadRecord(c *gin.Context) {
 	activity := c.PostForm("activity")
+	log.Println("phone use record:" + activity)
 	record := v1.NewPhoneUserRecord(activity)
 	err := p.srv.AddRecord(record)
 	if err != nil {
