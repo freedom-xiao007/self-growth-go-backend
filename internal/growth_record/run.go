@@ -123,12 +123,12 @@ func main() {
 		WriteTimeout: 9 * time.Second,
 	}
 
-	secureServer := &http.Server{
-		Addr:         "192.168.1.3:8443",
-		Handler:      router(),
-		ReadTimeout:  4 * time.Second,
-		WriteTimeout: 9 * time.Second,
-	}
+	//secureServer := &http.Server{
+	//	Addr:         "192.168.1.3:8443",
+	//	Handler:      router(),
+	//	ReadTimeout:  4 * time.Second,
+	//	WriteTimeout: 9 * time.Second,
+	//}
 
 	eg.Go(func() error {
 		err := insecureServer.ListenAndServe()
@@ -138,13 +138,13 @@ func main() {
 		return err
 	})
 
-	eg.Go(func() error {
-		err := secureServer.ListenAndServeTLS("D:\\temp\\https\\server.crt", "D:\\temp\\https\\server_no_passwd.key")
-		if err != nil && err != http.ErrServerClosed {
-			log.Fatal(err)
-		}
-		return err
-	})
+	//eg.Go(func() error {
+	//	err := secureServer.ListenAndServeTLS("D:\\temp\\https\\server.crt", "D:\\temp\\https\\server_no_passwd.key")
+	//	if err != nil && err != http.ErrServerClosed {
+	//		log.Fatal(err)
+	//	}
+	//	return err
+	//})
 
 	if err := eg.Wait(); err != nil {
 		log.Fatal(err)
