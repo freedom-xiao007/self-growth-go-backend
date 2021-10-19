@@ -6,7 +6,8 @@ import (
 
 type Application struct {
 	mgm.DefaultModel `bson:",inline"`
-	Name string    `json:"name"`
+	Name     string  `json:"name"`
+	UserName string  `json:"userName"`
 }
 
 func NewApplication(name string) *Application {
@@ -19,6 +20,7 @@ type ApplicationActivity struct {
 	mgm.DefaultModel `bson:",inline"`
 	ApplicationName  string    `json:"applicationName"`
 	ActivityName     string    `json:"activityName"`
+	UserName         string    `json:"userName"`
 }
 
 func NewApplicationActivity(applicationName, activityName string) *ApplicationActivity {
