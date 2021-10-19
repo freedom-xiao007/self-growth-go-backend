@@ -14,3 +14,16 @@ func NewApplication(name string) *Application {
 		Name: name,
 	}
 }
+
+type ApplicationActivity struct {
+	mgm.DefaultModel `bson:",inline"`
+	ApplicationName  string    `json:"applicationName"`
+	ActivityName     string    `json:"activityName"`
+}
+
+func NewApplicationActivity(applicationName, activityName string) *ApplicationActivity {
+	return &ApplicationActivity {
+		ApplicationName: applicationName,
+		ActivityName: activityName,
+	}
+}
