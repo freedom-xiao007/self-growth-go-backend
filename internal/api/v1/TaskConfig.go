@@ -23,3 +23,9 @@ func NewTaskConfig(name, description, label string, cycleType int8) *TaskConfig 
 		IsComplete: false,
 	}
 }
+
+func (t *TaskConfig) RefreshStatus(records []TaskRecord) {
+	//now := time.Now()
+	//cycleType := config.CycleType
+	t.IsComplete = false
+}
