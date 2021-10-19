@@ -7,11 +7,13 @@ import (
 type LabelModel struct {
 	mgm.DefaultModel `bson:",inline"`
 	Name     string  `json:"activity"`
+	Description string    `json:"description"`
 	UserName string  `json:"userName"`
 }
 
-func NewLabelModel(name string) *LabelModel {
+func NewLabelModel(name, description string) *LabelModel {
 	return &LabelModel {
 		Name: name,
+		Description: description,
 	}
 }
