@@ -8,6 +8,7 @@ type ActivityModel struct {
 	mgm.DefaultModel `bson:",inline"`
 	Name     string  `json:"name"`
 	Activity string  `json:"activity"`
+	UserName string  `json:"userName"`
 }
 
 func NewActivityModel(name, activity string) *ActivityModel {
