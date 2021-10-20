@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"database/sql"
 	"github.com/kamva/mgm/v3"
+	"github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
 	v1 "seltGrowth/internal/api/v1"
 )
@@ -9,6 +11,7 @@ import (
 type PhoneRecordService interface {
 	AddRecord(record *v1.PhoneUseRecord) error
 	Overview() (map[string]int64, error)
+	ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]v1.PhoneUseRecord, error)
 }
 
 type phoneRecordService struct {
@@ -44,4 +47,21 @@ func (p *phoneRecordService) Overview() (map[string]int64, error) {
 		println(key, value)
 	}
 	return statistics, nil
+}
+
+func (p *phoneRecordService) ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]v1.PhoneUseRecord, error) {
+	var records []v1.PhoneUseRecord
+	query := bson.M{}
+	query["activity"] = activityName
+	if startTime.Valid {
+		query["date"] = bson.M{operator.Gte: startTime.Time}
+	}
+	if startTime.Valid {
+		query["date"] = bson.M{operator.Let: endTime.Time}
+	}
+	err := mgm.Coll(&v1.PhoneUseRecord{}).SimpleFind(&records, query)
+	if err != nil {
+		return nil, err
+	}
+	return records, nil
 }

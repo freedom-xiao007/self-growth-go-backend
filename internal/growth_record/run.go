@@ -79,6 +79,7 @@ func router() http.Handler {
 	helloHandler := controller.NewHelloHandler()
 	phoneUseController := controller.NewPhoneUseController()
 	activityController := controller.NewActivityController()
+	taskController := controller.NewTaskController()
 	// 路由分组、中间件、认证
 	v1 := router.Group("/v1")
 	{
@@ -98,11 +99,17 @@ func router() http.Handler {
 		{
 			phoneUser.POST("/useRecord", phoneUseController.UploadRecord)
 			phoneUser.GET("/overview", phoneUseController.Overview)
+			phoneUser.GET("/activityHistory", phoneUseController.ActivityHistory)
 		}
 
 		activity := v1.Group("/activity")
 		{
 			activity.GET("/list", activityController.GetActivities)
+		}
+
+		task := v1.Group("/task")
+		{
+			task.GET("/list", taskController.TaskList)
 		}
 	}
 
