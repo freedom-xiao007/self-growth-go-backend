@@ -8,7 +8,6 @@ import (
 
 func router() http.Handler {
 	router := gin.Default()
-	productHandler := newProductHandler()
 	helloHandler := controller.NewHelloHandler()
 	phoneUseController := controller.NewPhoneUseController()
 	activityController := controller.NewActivityController()
@@ -16,13 +15,6 @@ func router() http.Handler {
 	// 路由分组、中间件、认证
 	v1 := router.Group("/v1")
 	{
-		productv0 := v1.Group("/products")
-		{
-			// 路由匹配
-			productv0.POST("", productHandler.Create)
-			productv0.GET(":name", productHandler.Get)
-		}
-
 		hello := v1.Group("/hello")
 		{
 			hello.GET("", helloHandler.Hello)
