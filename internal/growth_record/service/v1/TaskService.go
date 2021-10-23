@@ -9,6 +9,7 @@ import (
 type TaskService interface {
 	GetTaskList() ([]v1.TaskConfig, error)
 	CompleteTask(model v1.ActivityModel) (v1.ActivityModel, error)
+	AddTask(task v1.TaskConfig) error
 }
 
 type taskService struct {
@@ -61,4 +62,8 @@ func (t *taskService) CompleteTask(model v1.ActivityModel) (v1.ActivityModel, er
 		println(key, value)
 	}
 	return v1.ActivityModel{}, nil
+}
+
+func (t *taskService) AddTask(task v1.TaskConfig) error {
+	return mgm.Coll(&task).Create(&task)
 }
