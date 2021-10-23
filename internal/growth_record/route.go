@@ -14,6 +14,7 @@ func router() http.Handler {
 	activityController := controller.NewActivityController()
 	taskController := controller.NewTaskController()
 	userController := controller.NewUserController()
+	labelController := controller.NewLabelController();
 
 	// 路由分组、中间件、认证
 	v1 := router.Group("/v1", middleware.JWTAuth())
@@ -38,6 +39,11 @@ func router() http.Handler {
 		task := v1.Group("/task")
 		{
 			task.GET("/list", taskController.TaskList)
+		}
+
+		label := v1.Group("/label")
+		{
+			label.POST("/add", labelController.Add)
 		}
 	}
 
