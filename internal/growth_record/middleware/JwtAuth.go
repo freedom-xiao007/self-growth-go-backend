@@ -82,28 +82,29 @@ func JWTAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		log.Print("get token: ", token)
-			j := NewJWT()
-			claims, err := j.ParserToken(token)
-			if err != nil {
-				if err == jwt.ErrInvalidKey {
-					c.JSON(http.StatusOK, gin.H{
-						"status": -1,
-						"msg":    "token授权已过期，请重新申请授权",
-						"data":   nil,
-					})
-					c.Abort()
-					return
-				}
-				c.JSON(http.StatusOK, gin.H{
+
+		j := NewJWT()
+		claims, err := j.ParserToken(token)
+		if err != nil {
+			if err == jwt.ErrInvalidKey {
+				c.JSON(http.StatusUnauthorized, gin.H{
 					"status": -1,
-					"msg":    err.Error(),
+					"msg":    "token授权已过期，请重新申请授权",
 					"data":   nil,
 				})
 				c.Abort()
 				return
 			}
-			c.Set("claims", claims)
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status": -1,
+				"msg":    err.Error(),
+				"data":   nil,
+			})
+			c.Abort()
+			return
+		}
+		c.Request.Header.Add("userName", claims.Email)
+		c.Set("claims", claims)
 	}
 }
 
