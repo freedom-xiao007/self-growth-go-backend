@@ -40,6 +40,7 @@ func router() http.Handler {
 		{
 			task.GET("/list", taskController.TaskList)
 			task.POST("/add", taskController.AddTask)
+			task.POST("/complete", taskController.Complete)
 		}
 
 		label := v1.Group("/label")

@@ -42,3 +42,13 @@ func (t *TaskController) AddTask(c *gin.Context) {
 	}
 	SuccessResponse(c, "新增任务成功")
 }
+
+func (t *TaskController) Complete(c *gin.Context) {
+	id := c.PostForm("id")
+	err := t.srv.Complete(id[1:len(id)-1], GetLoginUserName(c))
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponse(c, "任务完成")
+}

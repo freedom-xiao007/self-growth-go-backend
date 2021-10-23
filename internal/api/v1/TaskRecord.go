@@ -13,14 +13,17 @@ type TaskRecord struct {
 	Label            string           `json:"label"`
 	CycleType        int8             `json:"cycleType"`
 	UserName         string           `json:"userName"`
+	Type             int8             `json:"type"`
 }
 
-func NewTaskRecord(name, description, label string, cycleType int8, completeDate time.Time) *TaskRecord {
+func NewTaskRecord(name, description, label, username string, cycleType, TaskType int8, completeDate time.Time) *TaskRecord {
 	return &TaskRecord {
 		Name: name,
 		Description: description,
 		Label: label,
 		CycleType: cycleType,
 		CompleteDate: completeDate,
+		Type: TaskType,
+		UserName: username,
 	}
 }
