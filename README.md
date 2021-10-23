@@ -12,3 +12,5 @@
 
 ## 参考链接
 - [Go语言项目开发实战](https://time.geekbang.org/column/article/381392)
+- [Kamva/mgm](https://github.com/Kamva/mgm)
+- [9.5 存储密码](https://www.kancloud.cn/kancloud/web-application-with-golang/44198)
