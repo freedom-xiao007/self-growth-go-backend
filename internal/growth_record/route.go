@@ -44,6 +44,7 @@ func router() http.Handler {
 		label := v1.Group("/label")
 		{
 			label.POST("/add", labelController.Add)
+			label.GET("/list", labelController.List)
 		}
 	}
 

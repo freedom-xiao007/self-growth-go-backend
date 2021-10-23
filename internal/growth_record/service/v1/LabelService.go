@@ -9,6 +9,7 @@ import (
 
 type LabelService interface {
 	AddLabel(label modelV1.LabelModel) error
+	LabelList(userName string) ([]modelV1.LabelModel, error)
 }
 
 type labelService struct {
@@ -30,4 +31,13 @@ func (l *labelService) AddLabel(label modelV1.LabelModel) error {
 		return nil
 	}
 	return errors.New("已存在该标签")
+}
+
+func (l *labelService) LabelList(username string) ([]modelV1.LabelModel, error) {
+	var labels []modelV1.LabelModel
+	err := mgm.Coll(&modelV1.LabelModel{}).SimpleFind(&labels, bson.M{"username": username})
+	if err != nil {
+		return nil, err
+	}
+	return labels, nil
 }

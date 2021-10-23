@@ -30,3 +30,12 @@ func (l *LabelController) Add(c *gin.Context) {
 	}
 	SuccessResponse(c, "新增成功")
 }
+
+func (l *LabelController) List(c *gin.Context) {
+	data, err := l.srv.LabelList(GetLoginUserName(c))
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponse(c, data)
+}
