@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	modelV1 "seltGrowth/internal/api/v1"
+	"seltGrowth/internal/growth_record/middleware"
 	srvV1 "seltGrowth/internal/growth_record/service/v1"
 )
 
@@ -34,5 +35,5 @@ func (t *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	SuccessResponse(c, "login success")
+	SuccessResponse(c, middleware.GenerateToken(c, user.Email))
 }
