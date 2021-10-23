@@ -12,6 +12,8 @@ func router() http.Handler {
 	phoneUseController := controller.NewPhoneUseController()
 	activityController := controller.NewActivityController()
 	taskController := controller.NewTaskController()
+	userController := controller.NewUserController()
+
 	// 路由分组、中间件、认证
 	v1 := router.Group("/v1")
 	{
@@ -35,6 +37,11 @@ func router() http.Handler {
 		task := v1.Group("/task")
 		{
 			task.GET("/list", taskController.TaskList)
+		}
+
+		user := v1.Group("/user")
+		{
+			user.POST("/login", userController.Login)
 		}
 	}
 
