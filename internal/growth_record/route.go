@@ -41,7 +41,7 @@ func router() http.Handler {
 		}
 	}
 
-	login := router.Group("/v1")
+	login := router.Group("/auth")
 	{
 		user := login.Group("/user")
 		{
