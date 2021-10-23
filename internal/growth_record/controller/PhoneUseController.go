@@ -27,10 +27,10 @@ func (p *PhoneUseController) UploadRecord(c *gin.Context) {
 	record := v1.NewPhoneUserRecord(activity)
 	err := p.srv.AddRecord(record)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		ErrorResponse(c, 500, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, "upload success")
+	SuccessResponse(c, "upload success")
 }
 
 func (p *PhoneUseController) Overview(c *gin.Context) {
