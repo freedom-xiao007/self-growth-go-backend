@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
 	modelV1 "seltGrowth/internal/api/v1"
 	srvV1 "seltGrowth/internal/growth_record/service/v1"
 )
@@ -18,12 +17,13 @@ func NewTaskController() *TaskController {
 }
 
 func (t *TaskController) TaskList(c *gin.Context) {
-	tasks, err := t.srv.GetTaskList()
+	isComplete := c.Query("isComplete")
+	tasks, err := t.srv.GetTaskList(isComplete, GetLoginUserName(c))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		ErrorResponse(c, 400, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, tasks)
+	SuccessResponse(c, tasks)
 }
 
 func (t *TaskController) AddTask(c *gin.Context) {

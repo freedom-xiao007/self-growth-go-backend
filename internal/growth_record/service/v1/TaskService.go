@@ -7,7 +7,7 @@ import (
 )
 
 type TaskService interface {
-	GetTaskList() ([]v1.TaskConfig, error)
+	GetTaskList(isComplete, username string) ([]v1.TaskConfig, error)
 	CompleteTask(model v1.ActivityModel) (v1.ActivityModel, error)
 	AddTask(task v1.TaskConfig) error
 }
@@ -20,22 +20,16 @@ func NewTaskService() TaskService {
 	return &taskService{}
 }
 
-func (t *taskService) GetTaskList() ([]v1.TaskConfig, error) {
-	var labels []v1.LabelModel
-	err := mgm.Coll(&v1.LabelModel{}).SimpleFind(&labels, bson.M{})
-	if err != nil {
-		return nil, err
-	}
-
+func (t *taskService) GetTaskList(isComplete, username string) ([]v1.TaskConfig, error) {
 	var taskConfigs []v1.TaskConfig
-	err = mgm.Coll(&v1.TaskConfig{}).SimpleFind(&taskConfigs, bson.M{})
+	err := mgm.Coll(&v1.TaskConfig{}).SimpleFind(&taskConfigs, bson.M{"username": username})
 	if err != nil {
 		return nil, err
 	}
 
 	for _, taskConfig := range taskConfigs {
 		var records []v1.TaskRecord
-		err = mgm.Coll(&v1.TaskRecord{}).SimpleFind(&records, bson.M{})
+		err = mgm.Coll(&v1.TaskRecord{}).SimpleFind(&records, bson.M{"username": username})
 		if err != nil {
 			return nil, err
 		}
