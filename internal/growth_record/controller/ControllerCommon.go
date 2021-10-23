@@ -18,3 +18,7 @@ func SuccessResponse(c *gin.Context, data interface{}) {
 		"data": data,
 	})
 }
+
+func GetLoginUserName(c *gin.Context) string {
+	return c.GetHeader("userName")
+}
