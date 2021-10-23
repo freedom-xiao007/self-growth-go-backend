@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"seltGrowth/internal/growth_record/controller"
+	"seltGrowth/internal/growth_record/middleware"
 )
 
 func router() http.Handler {
@@ -15,7 +16,7 @@ func router() http.Handler {
 	userController := controller.NewUserController()
 
 	// 路由分组、中间件、认证
-	v1 := router.Group("/v1")
+	v1 := router.Group("/v1", middleware.JWTAuth())
 	{
 		hello := v1.Group("/hello")
 		{
@@ -38,8 +39,11 @@ func router() http.Handler {
 		{
 			task.GET("/list", taskController.TaskList)
 		}
+	}
 
-		user := v1.Group("/user")
+	login := router.Group("/v1")
+	{
+		user := login.Group("/user")
 		{
 			user.POST("/login", userController.Login)
 		}
