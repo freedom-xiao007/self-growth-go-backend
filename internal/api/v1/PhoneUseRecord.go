@@ -12,9 +12,10 @@ type PhoneUseRecord struct {
 	UserName string    `json:"userName"`
 }
 
-func NewPhoneUserRecord(activity string) *PhoneUseRecord {
+func NewPhoneUserRecord(activity, userName string) *PhoneUseRecord {
 	return &PhoneUseRecord {
 		Date: time.Now(),
 		Activity: activity,
+		UserName: userName,
 	}
 }

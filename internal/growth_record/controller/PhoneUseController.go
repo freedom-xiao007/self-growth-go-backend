@@ -24,7 +24,7 @@ func NewPhoneUseController() *PhoneUseController {
 func (p *PhoneUseController) UploadRecord(c *gin.Context) {
 	activity := c.PostForm("activity")
 	log.Println("phone use record:" + activity)
-	record := v1.NewPhoneUserRecord(activity)
+	record := v1.NewPhoneUserRecord(activity, c.GetHeader("userName"))
 	err := p.srv.AddRecord(record)
 	if err != nil {
 		ErrorResponse(c, 500, err.Error())
