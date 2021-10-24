@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	modelV1 "seltGrowth/internal/api/v1"
 	srvV1 "seltGrowth/internal/growth_record/service/v1"
 )
@@ -51,4 +52,14 @@ func (t *TaskController) Complete(c *gin.Context) {
 		return
 	}
 	SuccessResponse(c, "任务完成")
+}
+
+func (t *TaskController) History(c *gin.Context) {
+	data, err := t.srv.History(GetLoginUserName(c))
+	if err != nil {
+		log.Error(err)
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponse(c, data)
 }

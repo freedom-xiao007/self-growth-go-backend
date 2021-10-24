@@ -7,7 +7,7 @@ import (
 
 type TaskRecord struct {
 	mgm.DefaultModel `bson:",inline"`
-	CompleteDate     time.Time        `json:"date"`
+	CompleteDate     time.Time        `json:"completeDate"`
 	Name             string           `json:"name"`
 	Description      string           `json:"description"`
 	Label            string           `json:"label"`

@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	modelV1 "seltGrowth/internal/api/v1"
 	"time"
 )
@@ -11,6 +12,7 @@ type TaskService interface {
 	GetTaskList(isComplete, username string) ([]modelV1.TaskConfig, error)
 	Complete(id, username string) error
 	AddTask(task modelV1.TaskConfig) error
+	History(userName string) ([]modelV1.TaskRecord, error)
 }
 
 type taskService struct {
@@ -58,4 +60,17 @@ func (t *taskService) Complete(id, username string) error {
 
 func (t *taskService) AddTask(task modelV1.TaskConfig) error {
 	return mgm.Coll(&task).Create(&task)
+}
+
+func (t *taskService) History(userName string) ([]modelV1.TaskRecord, error) {
+	var records []modelV1.TaskRecord
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"completeDate", -1}})
+	findOptions.SetSkip(0)
+	findOptions.SetLimit(100)
+	err := mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, bson.M{"username": userName}, findOptions)
+	if err != nil {
+		return nil, err
+	}
+	return records, nil
 }
