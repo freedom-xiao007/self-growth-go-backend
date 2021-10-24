@@ -6,6 +6,7 @@ import (
 	"github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
 	modelV1 "seltGrowth/internal/api/v1"
+	"sort"
 )
 
 type ActivityService interface {
@@ -114,6 +115,10 @@ func (a *activityService) Overview(username string) ([]map[string]interface{}, e
 		activity["times"] = value
 		activityList = append(activityList, activity)
 	}
+
+	sort.Slice(activityList, func(i, j int) bool {
+		return activityList[i]["times"].(int64) >= activityList[j]["times"].(int64)
+	})
 
 	return activityList, nil
 }
