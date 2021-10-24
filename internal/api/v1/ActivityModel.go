@@ -11,6 +11,7 @@ type ActivityModel struct {
 	Application string  `json:"application"`
 	Activity    string  `json:"activity"`
 	UserName    string  `json:"userName"`
+	Label       string  `json:"label"`
 }
 
 func NewActivityModel(application, activity, username string) *ActivityModel {

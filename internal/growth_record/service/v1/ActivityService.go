@@ -111,8 +111,9 @@ func (a *activityService) Overview(username string) ([]map[string]interface{}, e
 	for key, value := range statistics {
 		activity := make(map[string]interface{})
 		activity["name"] = key
-		activity["application"] = activity2Application[key]
+		activity["application"] = activity2Application[key].Application
 		activity["times"] = value
+		activity["label"] = activity2Application[key].Label
 		activityList = append(activityList, activity)
 	}
 
@@ -123,16 +124,16 @@ func (a *activityService) Overview(username string) ([]map[string]interface{}, e
 	return activityList, nil
 }
 
-func getActivity2Application(username string) (map[string]string, error) {
+func getActivity2Application(username string) (map[string]modelV1.ActivityModel, error) {
 	var activities []modelV1.ActivityModel
 	err := mgm.Coll(&modelV1.ActivityModel{}).SimpleFind(&activities, bson.M{"username": username})
 	if err != nil {
 		return nil, err
 	}
 
-	activity2Application := make(map[string]string)
+	activity2Application := make(map[string]modelV1.ActivityModel)
 	for _, activity := range activities {
-		activity2Application[activity.Activity] = activity.Application
+		activity2Application[activity.Activity] = activity
 	}
 	return activity2Application, nil
 }
@@ -167,5 +168,6 @@ func (a *activityService) UpdateActivityModel(activityModel modelV1.ActivityMode
 	}
 
 	existActivityModel.Application = activityModel.Application
+	existActivityModel.Label = activityModel.Label
 	return mgm.Coll(&modelV1.ActivityModel{}).Update(&existActivityModel)
 }
