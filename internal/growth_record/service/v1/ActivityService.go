@@ -87,7 +87,7 @@ func (a *activityService) AddRecord(record *modelV1.PhoneUseRecord) error {
 
 func (a *activityService) Overview(username string) ([]map[string]interface{}, error) {
 	var records []modelV1.PhoneUseRecord
-	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&records, bson.M{})
+	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&records, bson.M{"username": username})
 	if err != nil {
 		return nil, err
 	}
