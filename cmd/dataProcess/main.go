@@ -22,6 +22,7 @@ func main() {
 	}
 
 	for _, record := range records {
+		record.UserName = "1243925457@qq.com"
 		err := mgm.Coll(&modelV1.PhoneUseRecord{}).Update(&record)
 		if err != nil {
 			log.Error(err)
