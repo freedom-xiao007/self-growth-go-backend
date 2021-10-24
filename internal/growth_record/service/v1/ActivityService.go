@@ -14,6 +14,7 @@ type ActivityService interface {
 	AddRecord(record *modelV1.PhoneUseRecord) error
 	Overview(username string) ([]map[string]interface{}, error)
 	ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error)
+	UpdateActivityModel(model modelV1.ActivityModel) error
 }
 
 type activityService struct {
@@ -76,7 +77,7 @@ func (a *activityService) UpdateActivityName(model modelV1.ActivityModel) (model
 	return modelV1.ActivityModel{}, nil
 }
 
-func (p *activityService) AddRecord(record *modelV1.PhoneUseRecord) error {
+func (a *activityService) AddRecord(record *modelV1.PhoneUseRecord) error {
 	err := mgm.Coll(record).Create(record)
 	if err != nil {
 		return err
@@ -84,7 +85,7 @@ func (p *activityService) AddRecord(record *modelV1.PhoneUseRecord) error {
 	return nil
 }
 
-func (p *activityService) Overview(username string) ([]map[string]interface{}, error) {
+func (a *activityService) Overview(username string) ([]map[string]interface{}, error) {
 	var records []modelV1.PhoneUseRecord
 	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&records, bson.M{})
 	if err != nil {
@@ -131,7 +132,7 @@ func getActivity2Application(username string) (map[string]string, error) {
 	return activity2Application, nil
 }
 
-func (p *activityService) ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error) {
+func (a *activityService) ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error) {
 	var records []modelV1.PhoneUseRecord
 	query := bson.M{}
 	query["activity"] = activityName
@@ -146,4 +147,19 @@ func (p *activityService) ActivityHistory(activityName string, startTime, endTim
 		return nil, err
 	}
 	return records, nil
+}
+
+func (a *activityService) UpdateActivityModel(activityModel modelV1.ActivityModel) error {
+	var existActivityModel modelV1.ActivityModel
+	err := mgm.Coll(&modelV1.ActivityModel{}).First(bson.M{"activity": activityModel.Activity, "username": activityModel.UserName}, &existActivityModel)
+	if err != nil {
+		err := mgm.Coll(&modelV1.ActivityModel{}).Create(&activityModel)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	existActivityModel.Application = activityModel.Application
+	return mgm.Coll(&modelV1.ActivityModel{}).Update(&existActivityModel)
 }

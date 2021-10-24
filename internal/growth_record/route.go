@@ -29,6 +29,7 @@ func router() http.Handler {
 			activity.POST("/useRecord", activityController.UploadRecord)
 			activity.GET("/overview", activityController.Overview)
 			activity.GET("/activityHistory", activityController.ActivityHistory)
+			activity.POST("/updateActivityModel", activityController.UpdateActivityModel)
 		}
 
 		task := v1.Group("/task")

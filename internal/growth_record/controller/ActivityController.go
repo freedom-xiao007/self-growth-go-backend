@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	v1 "seltGrowth/internal/api/v1"
+	modelV1 "seltGrowth/internal/api/v1"
 	srvV1 "seltGrowth/internal/growth_record/service/v1"
 	"strconv"
 	"time"
@@ -31,11 +31,11 @@ func (a *ActivityController) GetActivities(c *gin.Context) {
 	c.JSON(http.StatusOK, activities)
 }
 
-func (p *ActivityController) UploadRecord(c *gin.Context) {
+func (a *ActivityController) UploadRecord(c *gin.Context) {
 	activity := c.PostForm("activity")
 	log.Println("phone use record:" + activity)
-	record := v1.NewPhoneUserRecord(activity, GetLoginUserName(c))
-	err := p.srv.AddRecord(record)
+	record := modelV1.NewPhoneUserRecord(activity, GetLoginUserName(c))
+	err := a.srv.AddRecord(record)
 	if err != nil {
 		ErrorResponse(c, 500, err.Error())
 		return
@@ -43,8 +43,8 @@ func (p *ActivityController) UploadRecord(c *gin.Context) {
 	SuccessResponse(c, "upload success")
 }
 
-func (p *ActivityController) Overview(c *gin.Context) {
-	data, err := p.srv.Overview(GetLoginUserName(c))
+func (a *ActivityController) Overview(c *gin.Context) {
+	data, err := a.srv.Overview(GetLoginUserName(c))
 	if err != nil {
 		log.Error(err)
 		ErrorResponse(c, 400, err.Error())
@@ -53,7 +53,7 @@ func (p *ActivityController) Overview(c *gin.Context) {
 	SuccessResponse(c, data)
 }
 
-func (p *ActivityController) ActivityHistory(c *gin.Context) {
+func (a *ActivityController) ActivityHistory(c *gin.Context) {
 	activityName := c.Query("activity")
 	start, err := strconv.Atoi(c.Query("startTimeStamp"))
 	end, err := strconv.Atoi(c.Query("endTimeStamp"))
@@ -69,10 +69,29 @@ func (p *ActivityController) ActivityHistory(c *gin.Context) {
 	if end > 0 {
 		endTime = sql.NullTime{Valid: true, Time: time.Unix(int64(end), 0)}
 	}
-	data, err := p.srv.ActivityHistory(activityName, startTime, endTime)
+	data, err := a.srv.ActivityHistory(activityName, startTime, endTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 	c.JSON(http.StatusOK, data)
+}
+
+func (a *ActivityController) UpdateActivityModel(c *gin.Context) {
+	var activityModel modelV1.ActivityModel
+	err := c.BindJSON(&activityModel)
+	if err != nil {
+		log.Error(err)
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+
+	activityModel.UserName = GetLoginUserName(c)
+	err = a.srv.UpdateActivityModel(activityModel)
+	if err != nil {
+		log.Error(err)
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponse(c, "更新成功")
 }
