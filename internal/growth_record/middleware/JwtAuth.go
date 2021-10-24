@@ -117,12 +117,12 @@ func GenerateToken(c *gin.Context, email string) string {
 	claims := CustomClaims{
 		email,
 		jwt.StandardClaims{
-			NotBefore: time.Now().Unix() - 1000,
 			// 签名生效时间
-			ExpiresAt: time.Now().Unix() + 3600,
+			NotBefore: time.Now().Unix() - 1000,
 			// 签名过期时间
-			Issuer:    "bgbiao.top",
+			ExpiresAt: time.Now().Unix() + 60 * 60 * 24 * 366,
 			// 签名颁发者
+			Issuer:    "bgbiao.top",
 			},
 	}
 	// 根据claims生成token对象
