@@ -13,7 +13,7 @@ type ActivityService interface {
 	UpdateActivityName(model modelV1.ActivityModel) (modelV1.ActivityModel, error)
 	AddRecord(record *modelV1.PhoneUseRecord) error
 	Overview(username string) ([]map[string]interface{}, error)
-	ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error)
+	ActivityHistory(username, activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error)
 	UpdateActivityModel(model modelV1.ActivityModel) error
 }
 
@@ -132,10 +132,11 @@ func getActivity2Application(username string) (map[string]string, error) {
 	return activity2Application, nil
 }
 
-func (a *activityService) ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error) {
+func (a *activityService) ActivityHistory(username, activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error) {
 	var records []modelV1.PhoneUseRecord
 	query := bson.M{}
 	query["activity"] = activityName
+	query["username"] = username
 	if startTime.Valid {
 		query["date"] = bson.M{operator.Gte: startTime.Time}
 	}

@@ -69,12 +69,13 @@ func (a *ActivityController) ActivityHistory(c *gin.Context) {
 	if end > 0 {
 		endTime = sql.NullTime{Valid: true, Time: time.Unix(int64(end), 0)}
 	}
-	data, err := a.srv.ActivityHistory(activityName, startTime, endTime)
+	data, err := a.srv.ActivityHistory(GetLoginUserName(c), activityName, startTime, endTime)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		log.Error(err)
+		ErrorResponse(c, 400, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, data)
+	SuccessResponse(c, data)
 }
 
 func (a *ActivityController) UpdateActivityModel(c *gin.Context) {
