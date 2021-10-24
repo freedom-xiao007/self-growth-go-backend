@@ -7,7 +7,7 @@ import (
 )
 
 type ActivityService interface {
-	GetActivities() ([]v1.ActivityModel, error)
+	GetActivities(username string) ([]v1.ActivityModel, error)
 	UpdateActivityName(model v1.ActivityModel) (v1.ActivityModel, error)
 }
 
@@ -19,7 +19,7 @@ func NewActivityService() ActivityService {
 	return &activityService{}
 }
 
-func (a *activityService) GetActivities() ([]v1.ActivityModel, error) {
+func (a *activityService) GetActivities(username string) ([]v1.ActivityModel, error) {
 	var records []v1.PhoneUseRecord
 	mgm.Coll(&v1.PhoneUseRecord{}).SimpleFind(&records, bson.M{})
 
@@ -46,7 +46,7 @@ func (a *activityService) GetActivities() ([]v1.ActivityModel, error) {
 		if _, ok := nameActivity[k]; ok {
 			continue
 		}
-		activity := v1.NewActivityModel("", k)
+		activity := v1.NewActivityModel("", k, username)
 		activities = append(activities, *activity)
 	}
 	return activities, nil

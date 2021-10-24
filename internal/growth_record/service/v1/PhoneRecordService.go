@@ -5,13 +5,13 @@ import (
 	"github.com/kamva/mgm/v3"
 	"github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
-	v1 "seltGrowth/internal/api/v1"
+	modelV1 "seltGrowth/internal/api/v1"
 )
 
 type PhoneRecordService interface {
-	AddRecord(record *v1.PhoneUseRecord) error
-	Overview() (map[string]int64, error)
-	ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]v1.PhoneUseRecord, error)
+	AddRecord(record *modelV1.PhoneUseRecord) error
+	Overview(username string) ([]map[string]interface{}, error)
+	ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error)
 }
 
 type phoneRecordService struct {
@@ -22,7 +22,7 @@ func NewPhoneRecordService() PhoneRecordService {
 	return &phoneRecordService{}
 }
 
-func (p *phoneRecordService) AddRecord(record *v1.PhoneUseRecord) error {
+func (p *phoneRecordService) AddRecord(record *modelV1.PhoneUseRecord) error {
 	err := mgm.Coll(record).Create(record)
 	if err != nil {
 		return err
@@ -30,9 +30,12 @@ func (p *phoneRecordService) AddRecord(record *v1.PhoneUseRecord) error {
 	return nil
 }
 
-func (p *phoneRecordService) Overview() (map[string]int64, error) {
-	var records []v1.PhoneUseRecord
-	mgm.Coll(&v1.PhoneUseRecord{}).SimpleFind(&records, bson.M{})
+func (p *phoneRecordService) Overview(username string) ([]map[string]interface{}, error) {
+	var records []modelV1.PhoneUseRecord
+	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&records, bson.M{})
+	if err != nil {
+		return nil, err
+	}
 
 	statistics := make(map[string]int64)
 	for _, value := range records {
@@ -43,14 +46,39 @@ func (p *phoneRecordService) Overview() (map[string]int64, error) {
 		}
 	}
 
-	for key, value := range statistics {
-		println(key, value)
+	activity2Application, err := getActivity2Application(username)
+	if err != nil {
+		return nil, err
 	}
-	return statistics, nil
+
+	activityList := make([]map[string]interface{}, 0)
+	for key, value := range statistics {
+		activity := make(map[string]interface{})
+		activity["name"] = key
+		activity["application"] = activity2Application[key]
+		activity["times"] = value
+		activityList = append(activityList, activity)
+	}
+
+	return activityList, nil
 }
 
-func (p *phoneRecordService) ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]v1.PhoneUseRecord, error) {
-	var records []v1.PhoneUseRecord
+func getActivity2Application(username string) (map[string]string, error) {
+	var activities []modelV1.ActivityModel
+	err := mgm.Coll(&modelV1.ActivityModel{}).SimpleFind(&activities, bson.M{"username": username})
+	if err != nil {
+		return nil, err
+	}
+
+	activity2Application := make(map[string]string)
+	for _, activity := range activities {
+		activity2Application[activity.Activity] = activity.Application
+	}
+	return activity2Application, nil
+}
+
+func (p *phoneRecordService) ActivityHistory(activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error) {
+	var records []modelV1.PhoneUseRecord
 	query := bson.M{}
 	query["activity"] = activityName
 	if startTime.Valid {
@@ -59,7 +87,7 @@ func (p *phoneRecordService) ActivityHistory(activityName string, startTime, end
 	if startTime.Valid {
 		query["date"] = bson.M{operator.Let: endTime.Time}
 	}
-	err := mgm.Coll(&v1.PhoneUseRecord{}).SimpleFind(&records, query)
+	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&records, query)
 	if err != nil {
 		return nil, err
 	}

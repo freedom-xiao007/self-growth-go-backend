@@ -3,7 +3,7 @@ package controller
 import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	v1 "seltGrowth/internal/api/v1"
 	srvV1 "seltGrowth/internal/growth_record/service/v1"
@@ -34,12 +34,13 @@ func (p *PhoneUseController) UploadRecord(c *gin.Context) {
 }
 
 func (p *PhoneUseController) Overview(c *gin.Context) {
-	data, err := p.srv.Overview()
+	data, err := p.srv.Overview(GetLoginUserName(c))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		log.Error(err)
+		ErrorResponse(c, 400, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, data)
+	SuccessResponse(c, data)
 }
 
 func (p *PhoneUseController) ActivityHistory(c *gin.Context) {

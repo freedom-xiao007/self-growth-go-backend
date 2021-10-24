@@ -4,16 +4,19 @@ import (
 	"github.com/kamva/mgm/v3"
 )
 
+// ActivityModel activity 手机活动名称，主键
+// application 手机应用名称，能对应多个activity
 type ActivityModel struct {
 	mgm.DefaultModel `bson:",inline"`
-	Name     string  `json:"name"`
-	Activity string  `json:"activity"`
-	UserName string  `json:"userName"`
+	Application string  `json:"application"`
+	Activity    string  `json:"activity"`
+	UserName    string  `json:"userName"`
 }
 
-func NewActivityModel(name, activity string) *ActivityModel {
+func NewActivityModel(application, activity, username string) *ActivityModel {
 	return &ActivityModel {
-		Name: name,
+		Application: application,
 		Activity: activity,
+		UserName: username,
 	}
 }
