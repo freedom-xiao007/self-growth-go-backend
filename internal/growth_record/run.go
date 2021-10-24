@@ -25,7 +25,7 @@ func main() {
 	// 一进程多端口
 	insecureServer := &http.Server{
 		Addr:         ":8080",
-		Handler:      router(),
+		Handler:      Router(),
 		ReadTimeout:  4 * time.Second,
 		WriteTimeout: 9 * time.Second,
 	}

@@ -7,7 +7,7 @@ import (
 	"seltGrowth/internal/growth_record/middleware"
 )
 
-func router() http.Handler {
+func Router() http.Handler {
 	router := gin.Default()
 	helloHandler := controller.NewHelloHandler()
 	activityController := controller.NewActivityController()
