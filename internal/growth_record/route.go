@@ -10,7 +10,6 @@ import (
 func router() http.Handler {
 	router := gin.Default()
 	helloHandler := controller.NewHelloHandler()
-	phoneUseController := controller.NewPhoneUseController()
 	activityController := controller.NewActivityController()
 	taskController := controller.NewTaskController()
 	userController := controller.NewUserController()
@@ -24,16 +23,12 @@ func router() http.Handler {
 			hello.GET("", helloHandler.Hello)
 		}
 
-		phoneUser := v1.Group("/phone")
-		{
-			phoneUser.POST("/useRecord", phoneUseController.UploadRecord)
-			phoneUser.GET("/overview", phoneUseController.Overview)
-			phoneUser.GET("/activityHistory", phoneUseController.ActivityHistory)
-		}
-
 		activity := v1.Group("/activity")
 		{
 			activity.GET("/list", activityController.GetActivities)
+			activity.POST("/useRecord", activityController.UploadRecord)
+			activity.GET("/overview", activityController.Overview)
+			activity.GET("/activityHistory", activityController.ActivityHistory)
 		}
 
 		task := v1.Group("/task")
