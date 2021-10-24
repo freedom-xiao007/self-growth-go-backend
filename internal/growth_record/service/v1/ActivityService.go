@@ -5,6 +5,7 @@ import (
 	"github.com/kamva/mgm/v3"
 	"github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	modelV1 "seltGrowth/internal/api/v1"
 	"sort"
 )
@@ -141,15 +142,23 @@ func getActivity2Application(username string) (map[string]modelV1.ActivityModel,
 func (a *activityService) ActivityHistory(username, activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error) {
 	var records []modelV1.PhoneUseRecord
 	query := bson.M{}
-	query["activity"] = activityName
 	query["username"] = username
+	if activityName != "" {
+		query["activity"] = activityName
+	}
 	if startTime.Valid {
 		query["date"] = bson.M{operator.Gte: startTime.Time}
 	}
 	if startTime.Valid {
 		query["date"] = bson.M{operator.Let: endTime.Time}
 	}
-	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&records, query)
+
+	findOptions := options.Find()
+	// Sort by `price` field descending
+	findOptions.SetSort(bson.D{{"date", -1}})
+	findOptions.SetSkip(0)
+	findOptions.SetLimit(100)
+	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&records, query, findOptions)
 	if err != nil {
 		return nil, err
 	}
