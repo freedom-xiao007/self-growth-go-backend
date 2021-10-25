@@ -7,9 +7,10 @@ import (
 
 type PhoneUseRecord struct {
 	mgm.DefaultModel `bson:",inline"`
-	Date     time.Time `json:"date"`
-	Activity string    `json:"activity"`
-	UserName string    `json:"userName"`
+	Date        time.Time `json:"date"`
+	Activity    string    `json:"activity"`
+	UserName    string    `json:"userName"`
+	Application string    `json:"application"`
 }
 
 func NewPhoneUserRecord(activity, userName string) *PhoneUseRecord {

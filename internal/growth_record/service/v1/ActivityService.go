@@ -162,6 +162,15 @@ func (a *activityService) ActivityHistory(username, activityName string, startTi
 	if err != nil {
 		return nil, err
 	}
+
+	activity2Application, err := getActivity2Application(username)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, record := range records {
+		record.Application = activity2Application[record.Activity].Application
+	}
 	return records, nil
 }
 
