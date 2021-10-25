@@ -168,8 +168,8 @@ func (a *activityService) ActivityHistory(username, activityName string, startTi
 		return nil, err
 	}
 
-	for _, record := range records {
-		record.Application = activity2Application[record.Activity].Application
+	for index, record := range records {
+		records[index].Application = activity2Application[record.Activity].Application
 	}
 	return records, nil
 }
