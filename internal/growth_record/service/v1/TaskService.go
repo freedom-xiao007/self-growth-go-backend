@@ -15,6 +15,7 @@ type TaskService interface {
 	AddTask(task modelV1.TaskConfig) error
 	History(userName string) ([]modelV1.TaskRecord, error)
 	AddTaskGroup(taskGroupName, username string) error
+	TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error)
 }
 
 type taskService struct {
@@ -87,4 +88,36 @@ func (t *taskService) AddTaskGroup(taskGroupName, username string) error {
 		return nil
 	}
 	return errors.New("任务组已存在:" + taskGroupName)
+}
+
+func (t *taskService) TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error) {
+	var taskGroups []modelV1.TaskGroup
+	err := mgm.Coll(&modelV1.TaskGroup{}).SimpleFind(&taskGroups, bson.M{"username": username})
+	if err != nil {
+		return nil, err
+	}
+
+	var taskConfigs []modelV1.TaskConfig
+	err = mgm.Coll(&modelV1.TaskConfig{}).SimpleFind(&taskConfigs, bson.M{"username": username})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[string][]modelV1.TaskConfig)
+	for _, value := range taskGroups {
+		result[value.Name] = make([]modelV1.TaskConfig, 0)
+	}
+
+	for _, taskConfig := range taskConfigs {
+		var records []modelV1.TaskRecord
+		err = mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, bson.M{"username": username})
+		if err != nil {
+			return nil, err
+		}
+		taskConfig.RefreshStatus(records)
+
+		result[taskConfig.Group] = append(result[taskConfig.Group], taskConfig)
+	}
+
+	return result, nil
 }

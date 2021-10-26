@@ -74,3 +74,13 @@ func (t *TaskController) AddTaskGroup(c *gin.Context) {
 	}
 	SuccessResponseWithoutData(c)
 }
+
+func (t *TaskController) TaskListByGroup(c *gin.Context) {
+	data, err := t.srv.TaskListByGroup(GetLoginUserName(c))
+	if err != nil {
+		log.Error(err)
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponse(c, data)
+}
