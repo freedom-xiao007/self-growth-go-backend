@@ -20,7 +20,6 @@ type ActivityService interface {
 }
 
 type activityService struct {
-
 }
 
 func NewActivityService() ActivityService {

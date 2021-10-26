@@ -7,7 +7,7 @@ import (
 
 func ErrorResponse(c *gin.Context, code int16, message string) {
 	c.JSON(int(code), gin.H{
-		"code": code,
+		"code":    code,
 		"message": message,
 	})
 }

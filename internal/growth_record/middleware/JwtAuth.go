@@ -120,10 +120,10 @@ func GenerateToken(c *gin.Context, email string) string {
 			// 签名生效时间
 			NotBefore: time.Now().Unix() - 1000,
 			// 签名过期时间
-			ExpiresAt: time.Now().Unix() + 60 * 60 * 24 * 366,
+			ExpiresAt: time.Now().Unix() + 60*60*24*366,
 			// 签名颁发者
-			Issuer:    "bgbiao.top",
-			},
+			Issuer: "bgbiao.top",
+		},
 	}
 	// 根据claims生成token对象
 	token, err := j.CreateToken(claims)

@@ -8,16 +8,16 @@ import (
 // application 手机应用名称，能对应多个activity
 type ActivityModel struct {
 	mgm.DefaultModel `bson:",inline"`
-	Application string  `json:"application"`
-	Activity    string  `json:"activity"`
-	UserName    string  `json:"userName"`
-	Label       string  `json:"label"`
+	Application      string `json:"application"`
+	Activity         string `json:"activity"`
+	UserName         string `json:"userName"`
+	Label            string `json:"label"`
 }
 
 func NewActivityModel(application, activity, username string) *ActivityModel {
-	return &ActivityModel {
+	return &ActivityModel{
 		Application: application,
-		Activity: activity,
-		UserName: username,
+		Activity:    activity,
+		UserName:    username,
 	}
 }

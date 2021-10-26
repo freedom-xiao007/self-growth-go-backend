@@ -16,7 +16,6 @@ type TaskService interface {
 }
 
 type taskService struct {
-
 }
 
 func NewTaskService() TaskService {

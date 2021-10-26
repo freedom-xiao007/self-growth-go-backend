@@ -13,10 +13,9 @@ type LabelService interface {
 }
 
 type labelService struct {
-
 }
 
-func NewLabelService() LabelService{
+func NewLabelService() LabelService {
 	return &labelService{}
 }
 

@@ -7,7 +7,7 @@ import (
 
 type User struct {
 	mgm.DefaultModel `bson:",inline"`
-	CreateDate     time.Time        `json:"createDate"`
-	Email          string           `json:"email"`
-	Password       string           `json:"password"`
+	CreateDate       time.Time `json:"createDate"`
+	Email            string    `json:"email"`
+	Password         string    `json:"password"`
 }

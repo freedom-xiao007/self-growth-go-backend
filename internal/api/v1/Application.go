@@ -6,26 +6,26 @@ import (
 
 type Application struct {
 	mgm.DefaultModel `bson:",inline"`
-	Name     string  `json:"name"`
-	UserName string  `json:"userName"`
+	Name             string `json:"name"`
+	UserName         string `json:"userName"`
 }
 
 func NewApplication(name string) *Application {
-	return &Application {
+	return &Application{
 		Name: name,
 	}
 }
 
 type ApplicationActivity struct {
 	mgm.DefaultModel `bson:",inline"`
-	ApplicationName  string    `json:"applicationName"`
-	ActivityName     string    `json:"activityName"`
-	UserName         string    `json:"userName"`
+	ApplicationName  string `json:"applicationName"`
+	ActivityName     string `json:"activityName"`
+	UserName         string `json:"userName"`
 }
 
 func NewApplicationActivity(applicationName, activityName string) *ApplicationActivity {
-	return &ApplicationActivity {
+	return &ApplicationActivity{
 		ApplicationName: applicationName,
-		ActivityName: activityName,
+		ActivityName:    activityName,
 	}
 }
