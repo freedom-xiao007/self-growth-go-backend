@@ -13,6 +13,7 @@ type TaskConfig struct {
 	UserName         string `json:"userName"`
 	IsComplete       bool   `json:"isComplete"`
 	Type             int8   `json:"type"`
+	Group            int8   `json:"group"`
 }
 
 func NewTaskConfig(name, description, label string, cycleType int8) *TaskConfig {
