@@ -19,6 +19,13 @@ func SuccessResponse(c *gin.Context, data interface{}) {
 	})
 }
 
+func SuccessResponseWithoutData(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"data": "{}",
+	})
+}
+
 func GetLoginUserName(c *gin.Context) string {
 	return c.GetHeader("userName")
 }

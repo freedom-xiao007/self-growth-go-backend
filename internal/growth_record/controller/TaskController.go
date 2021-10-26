@@ -63,3 +63,14 @@ func (t *TaskController) History(c *gin.Context) {
 	}
 	SuccessResponse(c, data)
 }
+
+func (t *TaskController) AddTaskGroup(c *gin.Context) {
+	taskGroupName := c.PostForm("taskGroup")
+	err := t.srv.AddTaskGroup(taskGroupName, GetLoginUserName(c))
+	if err != nil {
+		log.Error(err)
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponseWithoutData(c)
+}

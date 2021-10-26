@@ -7,10 +7,12 @@ import (
 type TaskGroup struct {
 	mgm.DefaultModel `bson:",inline"`
 	Name             string `json:"name"`
+	UserName         string `json:"username"`
 }
 
-func NewTaskGroup(name string) *TaskGroup {
+func NewTaskGroup(name, username string) *TaskGroup {
 	return &TaskGroup {
 		Name:        name,
+		UserName: username,
 	}
 }

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -13,6 +14,7 @@ type TaskService interface {
 	Complete(id, username string) error
 	AddTask(task modelV1.TaskConfig) error
 	History(userName string) ([]modelV1.TaskRecord, error)
+	AddTaskGroup(taskGroupName, username string) error
 }
 
 type taskService struct {
@@ -72,4 +74,17 @@ func (t *taskService) History(userName string) ([]modelV1.TaskRecord, error) {
 		return nil, err
 	}
 	return records, nil
+}
+
+func (t *taskService) AddTaskGroup(taskGroupName, username string) error {
+	var existTaskGroup modelV1.TaskGroup
+	err := mgm.Coll(&modelV1.TaskGroup{}).First(bson.M{"username": username, "name": taskGroupName}, &existTaskGroup)
+	if err != nil {
+		err := mgm.Coll(&modelV1.TaskGroup{}).Create(modelV1.NewTaskGroup(taskGroupName, username))
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return errors.New("任务组已存在:" + taskGroupName)
 }

@@ -92,6 +92,7 @@ func router() http.Handler {
 			task.POST("/add", taskController.AddTask)
 			task.POST("/complete", taskController.Complete)
 			task.GET("/history", taskController.History)
+			task.POST("/addTaskGroup", taskController.AddTaskGroup)
 		}
 
 		label := v1.Group("/label")
