@@ -3,6 +3,7 @@ package v1
 import (
 	"errors"
 	"github.com/kamva/mgm/v3"
+	"github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	modelV1 "seltGrowth/internal/api/v1"
@@ -16,7 +17,7 @@ type TaskService interface {
 	History(userName string) ([]modelV1.TaskRecord, error)
 	AddTaskGroup(taskGroupName, username string) error
 	TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error)
-	Overview(userName string) ([]interface{}, error)
+	Overview(userName string, startTimeStamp, endTimeStamp int64) (interface{}, error)
 }
 
 type taskService struct {
@@ -123,6 +124,82 @@ func (t *taskService) TaskListByGroup(username string) (map[string][]modelV1.Tas
 	return result, nil
 }
 
-func (t *taskService) Overview(userName string) ([]interface{}, error) {
-	panic("implement me")
+func (t *taskService) Overview(userName string, startTimeStamp, endTimeStamp int64) (interface{}, error) {
+	query := bson.M{}
+	query["username"] = userName
+	if startTimeStamp > 0 {
+		query["date"] = bson.M{operator.Gte: time.Unix(startTimeStamp, 0)}
+	}
+	if endTimeStamp > 0 {
+		query["date"] = bson.M{operator.Let: time.Unix(endTimeStamp, 0)}
+	}
+
+	activityStatistics, err := activityStatistics(query)
+	if err != nil {
+		return nil, err
+	}
+	taskStatistics, err := taskStatistics(query)
+	if err != nil {
+		return nil, err
+	}
+
+	response := make(map[string]interface{})
+	response["activityStatistics"] = activityStatistics
+	response["taskStatistics"] = taskStatistics
+	return response, nil
+}
+
+func activityStatistics(query bson.M) (interface{}, error) {
+	var applicationActivity []modelV1.ApplicationActivity
+	err := mgm.Coll(&modelV1.ApplicationActivity{}).SimpleFind(&applicationActivity, query)
+	if err != nil {
+		return nil, err
+	}
+
+	activity2Application := make(map[string]string)
+	for _, item := range applicationActivity {
+		activity2Application[item.ActivityName] = item.ApplicationName
+	}
+
+	var phoneUseRecords []modelV1.PhoneUseRecord
+	err = mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&phoneUseRecords, query)
+	if err != nil {
+		return nil, err
+	}
+
+	statistics := make(map[string]float64)
+	for _, item := range phoneUseRecords {
+		if _, ok := activity2Application[item.Activity]; !ok {
+			continue
+		}
+		application := activity2Application[item.Activity]
+		if _, ok := statistics[application]; !ok {
+			statistics[application] = 10.0
+		} else {
+			statistics[application] = statistics[application] + 10.0
+		}
+	}
+	return statistics, nil
+}
+
+func taskStatistics(query bson.M) (interface{}, error) {
+	var taskRecords []modelV1.TaskRecord
+	err := mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&taskRecords, query)
+	if err != nil {
+		return nil, err
+	}
+
+	labelStatistics := make(map[string]int64)
+	for _, item := range taskRecords {
+		if _, ok := labelStatistics[item.Label]; !ok {
+			labelStatistics[item.Label] = 1
+		} else {
+			labelStatistics[item.Label] = labelStatistics[item.Label] + 1
+		}
+	}
+
+	statistics := make(map[string]interface{})
+	statistics["labelStatistics"] = labelStatistics
+	statistics["amount"] = len(taskRecords)
+	return statistics, nil
 }

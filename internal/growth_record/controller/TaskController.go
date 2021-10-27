@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	modelV1 "seltGrowth/internal/api/v1"
 	srvV1 "seltGrowth/internal/growth_record/service/v1"
+	"strconv"
 )
 
 type TaskController struct {
@@ -86,7 +87,13 @@ func (t *TaskController) TaskListByGroup(c *gin.Context) {
 }
 
 func (t *TaskController) Overview(c *gin.Context) {
-	data, err := t.srv.Overview(GetLoginUserName(c))
+	startTimeStamp, err := strconv.Atoi(c.Query("startTimeStamp"))
+	endTimeStamp, err := strconv.Atoi(c.Query("endTimeStamp"))
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	data, err := t.srv.Overview(GetLoginUserName(c), int64(startTimeStamp), int64(endTimeStamp))
 	if err != nil {
 		log.Error(err)
 		ErrorResponse(c, 400, err.Error())
