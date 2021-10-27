@@ -16,6 +16,7 @@ type TaskService interface {
 	History(userName string) ([]modelV1.TaskRecord, error)
 	AddTaskGroup(taskGroupName, username string) error
 	TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error)
+	Overview(userName string) ([]interface{}, error)
 }
 
 type taskService struct {
@@ -120,4 +121,8 @@ func (t *taskService) TaskListByGroup(username string) (map[string][]modelV1.Tas
 	}
 
 	return result, nil
+}
+
+func (t *taskService) Overview(userName string) ([]interface{}, error) {
+	panic("implement me")
 }

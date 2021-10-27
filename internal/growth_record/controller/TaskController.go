@@ -84,3 +84,13 @@ func (t *TaskController) TaskListByGroup(c *gin.Context) {
 	}
 	SuccessResponse(c, data)
 }
+
+func (t *TaskController) Overview(c *gin.Context) {
+	data, err := t.srv.Overview(GetLoginUserName(c))
+	if err != nil {
+		log.Error(err)
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponse(c, data)
+}
