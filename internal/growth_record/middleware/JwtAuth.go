@@ -77,7 +77,7 @@ func JWTAuth() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": -1,
 				"msg":    "请求未携带token，无权限访问",
-				"data":   nil,
+				"data":   "{}",
 			})
 			c.Abort()
 			return
