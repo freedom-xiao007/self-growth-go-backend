@@ -15,7 +15,7 @@ type TaskService interface {
 	Complete(id, username string) error
 	AddTask(task modelV1.TaskConfig) error
 	History(userName string) ([]modelV1.TaskRecord, error)
-	AddTaskGroup(taskGroupName, username string) error
+	AddTaskGroup(taskGroup modelV1.TaskGroup) error
 	TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error)
 	Overview(userName string, startTimeStamp, endTimeStamp int64) (interface{}, error)
 }
@@ -54,7 +54,7 @@ func (t *taskService) Complete(id, username string) error {
 	}
 
 	taskRecord := modelV1.NewTaskRecord(taskConfig.Name, taskConfig.Description, taskConfig.Label, username,
-		taskConfig.CycleType, taskConfig.Type, time.Now())
+		taskConfig.CycleType, taskConfig.LearnType, time.Now())
 	err = mgm.Coll(&modelV1.TaskRecord{}).Create(taskRecord)
 	if err != nil {
 		return err
@@ -79,17 +79,17 @@ func (t *taskService) History(userName string) ([]modelV1.TaskRecord, error) {
 	return records, nil
 }
 
-func (t *taskService) AddTaskGroup(taskGroupName, username string) error {
+func (t *taskService) AddTaskGroup(taskGroup modelV1.TaskGroup) error {
 	var existTaskGroup modelV1.TaskGroup
-	err := mgm.Coll(&modelV1.TaskGroup{}).First(bson.M{"username": username, "name": taskGroupName}, &existTaskGroup)
+	err := mgm.Coll(&modelV1.TaskGroup{}).First(bson.M{"username": taskGroup.UserName, "name": taskGroup.Name}, &existTaskGroup)
 	if err != nil {
-		err := mgm.Coll(&modelV1.TaskGroup{}).Create(modelV1.NewTaskGroup(taskGroupName, username))
+		err := mgm.Coll(&modelV1.TaskGroup{}).Create(&taskGroup)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	return errors.New("任务组已存在:" + taskGroupName)
+	return errors.New("任务组已存在:" + taskGroup.Name)
 }
 
 func (t *taskService) TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error) {

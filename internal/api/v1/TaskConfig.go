@@ -12,7 +12,7 @@ type TaskConfig struct {
 	CycleType        int8   `json:"cycleType"`
 	UserName         string `json:"userName"`
 	IsComplete       bool   `json:"isComplete"`
-	Type             int8   `json:"type"`
+	LearnType        int8   `json:"learnType"`
 	Group            string `json:"group"`
 }
 

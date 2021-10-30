@@ -66,8 +66,15 @@ func (t *TaskController) History(c *gin.Context) {
 }
 
 func (t *TaskController) AddTaskGroup(c *gin.Context) {
-	taskGroupName := c.PostForm("taskGroup")
-	err := t.srv.AddTaskGroup(taskGroupName, GetLoginUserName(c))
+	var taskGroup modelV1.TaskGroup
+	err := c.BindJSON(&taskGroup)
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+
+	taskGroup.UserName = GetLoginUserName(c)
+	err = t.srv.AddTaskGroup(taskGroup)
 	if err != nil {
 		log.Error(err)
 		ErrorResponse(c, 400, err.Error())
