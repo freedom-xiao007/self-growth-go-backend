@@ -137,7 +137,7 @@ func (t *taskService) Overview(userName string, startTimeStamp, endTimeStamp int
 		query["date"] = bson.M{operator.Gte: time.Unix(startTimeStamp, 0)}
 	}
 	if endTimeStamp > 0 {
-		query["date"] = bson.M{operator.Let: time.Unix(endTimeStamp, 0)}
+		query["date"] = bson.M{operator.Lte: time.Unix(endTimeStamp, 0)}
 	}
 
 	activityStatistics, err := activityStatistics(query)
