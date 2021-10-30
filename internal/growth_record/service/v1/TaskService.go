@@ -19,6 +19,7 @@ type TaskService interface {
 	TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error)
 	Overview(userName string, startTimeStamp, endTimeStamp int64) (interface{}, error)
 	DeleteTaskGroup(groupName string, userName string) error
+	DeleteTask(id string, userName string) error
 }
 
 type taskService struct {
@@ -225,6 +226,22 @@ func (t *taskService) DeleteTaskGroup(groupName string, userName string) error {
 		return err
 	}
 	err = mgm.Coll(&modelV1.TaskGroup{}).Delete(&taskGroup)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *taskService) DeleteTask(id string, userName string) error {
+	var taskConfig modelV1.TaskConfig
+	err := mgm.Coll(&modelV1.TaskConfig{}).FindByID(id, &taskConfig)
+	if err != nil {
+		return err
+	}
+	if taskConfig.UserName != userName {
+		return errors.New("越权删除他人数据")
+	}
+	err = mgm.Coll(&modelV1.TaskConfig{}).Delete(&taskConfig)
 	if err != nil {
 		return err
 	}

@@ -118,3 +118,13 @@ func (t *TaskController) DeleteGroup(c *gin.Context) {
 	}
 	SuccessResponseWithoutData(c)
 }
+
+func (t *TaskController) DeleteTask(c *gin.Context) {
+	id := c.Param("id")
+	err := t.srv.DeleteTask(id, GetLoginUserName(c))
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponseWithoutData(c)
+}
