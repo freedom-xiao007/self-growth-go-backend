@@ -42,26 +42,74 @@ func main() {
 	log.Info("next:", nextTime)
 	log.Info("now:", time.Now())
 
-	for i := 10; i < 31; i++ {
+	for i := 1; i < 31; i++ {
 		query := bson.M{}
 		query["username"] = "1243925457@qq.com"
 		query["date"] = bson.M{operator.Gte: time.Date(2021, 10, i, 6, 0, 0, 0, time.UTC)}
 		query["date"] = bson.M{operator.Lte: time.Date(2021, 10, i+1, 6, 0, 0, 0, time.UTC)}
+		date := fmt.Sprintf("2021-10-%02d", i)
+		log.Info(date)
 
-		var phoneUseRecords []modelV1.PhoneUseRecord
-		err = mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&phoneUseRecords, query)
+		activityLog, err := activityStatistics(query, date)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
 
-		fmt.Println(i, "日期数据：", len(phoneUseRecords))
-		//for _, item := range phoneUseRecords {
-		//	log.Info(item)
-		//}
+		completeTaskAmount, completeTaskLog, err := taskStatistics(query, date)
 
-		//time.Sleep(time.Second * 5)
+		dayStatistics := *modelV1.NewDayStatistics(date, completeTaskAmount, completeTaskLog, activityLog)
+		err = mgm.Coll(&modelV1.DayStatistics{}).Create(&dayStatistics)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 	}
 
 	log.Info("数据统计完毕")
+}
+
+func taskStatistics(query bson.M, s string) (int64, []modelV1.TaskRecord, error) {
+	var records []modelV1.TaskRecord
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"completeDate", 1}})
+	err := mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, query, findOptions)
+	if err != nil {
+		return 0, nil, err
+	}
+	return int64(len(records)), records, nil
+}
+
+func activityStatistics(query bson.M, date string) (map[string]modelV1.ActivityLog, error) {
+	var phoneUseRecords []modelV1.PhoneUseRecord
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"date", 1}})
+	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&phoneUseRecords, query, findOptions)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	fmt.Println(date, "日期数据：", len(phoneUseRecords))
+
+	activityLog := make(map[string]modelV1.ActivityLog)
+	activitySet := make(map[string]bool)
+	activityAmount := make(map[string]int64)
+	activityDateLog := make(map[string][]time.Time)
+	for _, item := range phoneUseRecords {
+		activity := item.Activity
+		if _, ok := activityAmount[activity]; !ok {
+			activityAmount[activity] = 1
+			activityDateLog[activity] = make([]time.Time, 0)
+			activityDateLog[activity] = append(activityDateLog[activity], item.Date)
+			activitySet[activity] = true
+		} else {
+			activityAmount[activity] = activityAmount[activity] + 1
+			activityDateLog[activity] = append(activityDateLog[activity], item.Date)
+		}
+	}
+
+	for key, _ := range activitySet {
+		activityLog[key] = *modelV1.NewActivityLog(key, activityAmount[key], activityDateLog[key])
+	}
+	return activityLog, nil
 }
