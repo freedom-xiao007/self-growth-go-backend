@@ -108,3 +108,13 @@ func (t *TaskController) Overview(c *gin.Context) {
 	}
 	SuccessResponse(c, data)
 }
+
+func (t *TaskController) DeleteGroup(c *gin.Context) {
+	groupName := c.Param("name")
+	err := t.srv.DeleteTaskGroup(groupName, GetLoginUserName(c))
+	if err != nil {
+		ErrorResponse(c,400, err.Error())
+		return
+	}
+	SuccessResponseWithoutData(c)
+}

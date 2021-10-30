@@ -18,6 +18,7 @@ type TaskService interface {
 	AddTaskGroup(taskGroup modelV1.TaskGroup) error
 	TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error)
 	Overview(userName string, startTimeStamp, endTimeStamp int64) (interface{}, error)
+	DeleteTaskGroup(groupName string, userName string) error
 }
 
 type taskService struct {
@@ -202,4 +203,17 @@ func taskStatistics(query bson.M) (interface{}, error) {
 	statistics["labelStatistics"] = labelStatistics
 	statistics["amount"] = len(taskRecords)
 	return statistics, nil
+}
+
+func (t *taskService) DeleteTaskGroup(groupName string, userName string) error {
+	var taskGroup modelV1.TaskGroup
+	err := mgm.Coll(&modelV1.TaskGroup{}).First(bson.M{"name": groupName, "username": userName}, &taskGroup)
+	if err != nil {
+		return err
+	}
+	err = mgm.Coll(&modelV1.TaskGroup{}).Delete(&taskGroup)
+	if err != nil {
+		return err
+	}
+	return nil
 }
