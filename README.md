@@ -15,5 +15,11 @@
 - [Kamva/mgm](https://github.com/Kamva/mgm)
 - [9.5 存储密码](https://www.kancloud.cn/kancloud/web-application-with-golang/44198)
 
+### web相关
+- [gin获取路径中的参数](https://blog.csdn.net/ma2595162349/article/details/109398069)
+
+### 环境变量
+- [Golang 获取系统环境变量](https://studygolang.com/articles/3387)
+
 ## 工具
 - [https://robomongo.org/download](https://robomongo.org/download)
