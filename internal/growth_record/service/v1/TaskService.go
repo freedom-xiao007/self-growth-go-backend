@@ -16,7 +16,7 @@ type TaskService interface {
 	AddTask(task modelV1.TaskConfig) error
 	History(userName string) ([]modelV1.TaskRecord, error)
 	AddTaskGroup(taskGroup modelV1.TaskGroup) error
-	TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error)
+	TaskListByGroup(username string) ([]map[string]interface{}, error)
 	Overview(userName string, startTimeStamp, endTimeStamp int64) (interface{}, error)
 	DeleteTaskGroup(groupName string, userName string) error
 	DeleteTask(id string, userName string) error
@@ -94,11 +94,15 @@ func (t *taskService) AddTaskGroup(taskGroup modelV1.TaskGroup) error {
 	return errors.New("任务组已存在:" + taskGroup.Name)
 }
 
-func (t *taskService) TaskListByGroup(username string) (map[string][]modelV1.TaskConfig, error) {
+func (t *taskService) TaskListByGroup(username string) ([]map[string]interface{}, error) {
 	var taskGroups []modelV1.TaskGroup
 	err := mgm.Coll(&modelV1.TaskGroup{}).SimpleFind(&taskGroups, bson.M{"username": username})
 	if err != nil {
 		return nil, err
+	}
+	taskOfGroup := make(map[string][]modelV1.TaskConfig)
+	for _, value := range taskGroups {
+		taskOfGroup[value.Name] = make([]modelV1.TaskConfig, 0)
 	}
 
 	var taskConfigs []modelV1.TaskConfig
@@ -106,12 +110,6 @@ func (t *taskService) TaskListByGroup(username string) (map[string][]modelV1.Tas
 	if err != nil {
 		return nil, err
 	}
-
-	result := make(map[string][]modelV1.TaskConfig)
-	for _, value := range taskGroups {
-		result[value.Name] = make([]modelV1.TaskConfig, 0)
-	}
-
 	for _, taskConfig := range taskConfigs {
 		var records []modelV1.TaskRecord
 		err = mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, bson.M{"username": username})
@@ -120,9 +118,14 @@ func (t *taskService) TaskListByGroup(username string) (map[string][]modelV1.Tas
 		}
 		taskConfig.RefreshStatus(records)
 
-		result[taskConfig.Group] = append(result[taskConfig.Group], taskConfig)
+		taskOfGroup[taskConfig.Group] = append(taskOfGroup[taskConfig.Group], taskConfig)
 	}
 
+	result := make([]map[string]interface{}, 0)
+	for _, group := range taskGroups {
+		item := map[string]interface{} {"group": group, "tasks": taskOfGroup[group.Name]}
+		result = append(result, item)
+	}
 	return result, nil
 }
 
