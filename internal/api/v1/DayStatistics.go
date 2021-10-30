@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/kamva/mgm/v3"
+	"reflect"
 	"time"
 )
 
@@ -11,6 +12,11 @@ type DayStatistics struct {
 	CompleteTaskAmount int64 `json:"completeTaskAmount"`
 	CompleteTaskLog    []TaskRecord `json:"completeTaskLog"`
 	ActivityLog map[string]ActivityLog `json:"activityLog"`
+	UserName         string `json:"userName"`
+}
+
+func (d *DayStatistics) IsEmpty() bool {
+	return reflect.DeepEqual(*d, DayStatistics{})
 }
 
 func NewDayStatistics(date string, completeTaskAmount int64, completeTaskLog []TaskRecord, activityLog map[string]ActivityLog) *DayStatistics {

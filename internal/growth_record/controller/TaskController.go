@@ -6,6 +6,7 @@ import (
 	modelV1 "seltGrowth/internal/api/v1"
 	srvV1 "seltGrowth/internal/growth_record/service/v1"
 	"strconv"
+	"time"
 )
 
 type TaskController struct {
@@ -142,4 +143,18 @@ func (t *TaskController) ModifyGroup(c *gin.Context) {
 		return
 	}
 	SuccessResponseWithoutData(c)
+}
+
+func (t *TaskController) DayStatistics(c *gin.Context) {
+	timestamp, err := strconv.Atoi(c.Query("timestamp"))
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	data, err := t.srv.DayStatistics(time.Unix(int64(timestamp), 0), GetLoginUserName(c))
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponse(c, data)
 }

@@ -2,8 +2,10 @@ package v1
 
 import (
 	"errors"
+	"fmt"
 	"github.com/kamva/mgm/v3"
 	"github.com/kamva/mgm/v3/operator"
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	modelV1 "seltGrowth/internal/api/v1"
@@ -21,6 +23,7 @@ type TaskService interface {
 	DeleteTaskGroup(groupName string, userName string) error
 	DeleteTask(id string, userName string) error
 	ModifyGroup(taskGroup modelV1.TaskGroup) error
+	DayStatistics(day time.Time, userName string) (modelV1.DayStatistics, error)
 }
 
 type taskService struct {
@@ -270,4 +273,83 @@ func (t *taskService) ModifyGroup(taskGroupModify modelV1.TaskGroup) error {
 
 	taskGroup.Name = taskGroupModify.Name
 	return mgm.Coll(&modelV1.TaskGroup{}).Update(&taskGroup)
+}
+
+
+func (t *taskService) DayStatistics(day time.Time, userName string) (modelV1.DayStatistics, error) {
+	startTime := time.Date(day.Year(), day.Month(), day.Day(), 6, 0, 0, 0, day.Location())
+	date := fmt.Sprintf("%04d-%02d-%02d", startTime.Year(), startTime.Month(), startTime.Day())
+
+	var existDayStatistics modelV1.DayStatistics
+	_ = mgm.Coll(&modelV1.DayStatistics{}).First(bson.M{"username": userName, "date": date}, &existDayStatistics)
+	if !existDayStatistics.IsEmpty() {
+		log.Info("统计存在，直接读取记录")
+		return existDayStatistics, nil
+	}
+
+	endTime := startTime.AddDate(0, 0, 1)
+	query := bson.M{}
+	query["username"] = userName
+	query["date"] = bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location())}
+	query["date"] = bson.M{operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())}
+
+	activityLog, err := getActivityStatistics(query)
+	if err != nil {
+		return modelV1.DayStatistics{}, err
+	}
+
+	completeTaskAmount, completeTaskLog, err := getTaskStatistics(query)
+
+	dayStatistics := *modelV1.NewDayStatistics(date, completeTaskAmount, completeTaskLog, activityLog)
+	dayStatistics.UserName = userName
+	err = mgm.Coll(&modelV1.DayStatistics{}).Create(&dayStatistics)
+	if err != nil {
+		log.Fatal(err)
+		return modelV1.DayStatistics{}, err
+	}
+	return dayStatistics, nil
+}
+
+func getActivityStatistics(query bson.M) (map[string]modelV1.ActivityLog, error) {
+	var phoneUseRecords []modelV1.PhoneUseRecord
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"date", 1}})
+	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&phoneUseRecords, query, findOptions)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	activityLog := make(map[string]modelV1.ActivityLog)
+	activitySet := make(map[string]bool)
+	activityAmount := make(map[string]int64)
+	activityDateLog := make(map[string][]time.Time)
+	for _, item := range phoneUseRecords {
+		activity := item.Activity
+		if _, ok := activityAmount[activity]; !ok {
+			activityAmount[activity] = 1
+			activityDateLog[activity] = make([]time.Time, 0)
+			activityDateLog[activity] = append(activityDateLog[activity], item.Date)
+			activitySet[activity] = true
+		} else {
+			activityAmount[activity] = activityAmount[activity] + 1
+			activityDateLog[activity] = append(activityDateLog[activity], item.Date)
+		}
+	}
+
+	for key, _ := range activitySet {
+		activityLog[key] = *modelV1.NewActivityLog(key, activityAmount[key], activityDateLog[key])
+	}
+	return activityLog, nil
+}
+
+func getTaskStatistics(query bson.M) (int64, []modelV1.TaskRecord, error) {
+	var records []modelV1.TaskRecord
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"completeDate", 1}})
+	err := mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, query, findOptions)
+	if err != nil {
+		return 0, nil, err
+	}
+	return int64(len(records)), records, nil
 }
