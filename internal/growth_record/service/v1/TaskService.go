@@ -293,12 +293,12 @@ func (t *taskService) DayStatistics(day time.Time, userName string) (modelV1.Day
 	query["date"] = bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location())}
 	query["date"] = bson.M{operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())}
 
-	activityLog, err := getActivityStatistics(query)
+	activityLog, err := getActivityStatistics(userName, startTime, endTime)
 	if err != nil {
 		return modelV1.DayStatistics{}, err
 	}
 
-	completeTaskAmount, completeTaskLog, err := getTaskStatistics(query)
+	completeTaskAmount, completeTaskLog, err := getTaskStatistics(userName, startTime, endTime)
 
 	dayStatistics := *modelV1.NewDayStatistics(date, completeTaskAmount, completeTaskLog, activityLog)
 	dayStatistics.UserName = userName
@@ -310,10 +310,16 @@ func (t *taskService) DayStatistics(day time.Time, userName string) (modelV1.Day
 	return dayStatistics, nil
 }
 
-func getActivityStatistics(query bson.M) (map[string]modelV1.ActivityLog, error) {
-	var phoneUseRecords []modelV1.PhoneUseRecord
+func getActivityStatistics(userName string, startTime, endTime time.Time) (map[string]modelV1.ActivityLog, error) {
+	query := bson.M{}
+	query["username"] = userName
+	query["date"] = bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location())}
+	query["date"] = bson.M{operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())}
+
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"date", 1}})
+
+	var phoneUseRecords []modelV1.PhoneUseRecord
 	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&phoneUseRecords, query, findOptions)
 	if err != nil {
 		log.Fatal(err)
@@ -343,10 +349,16 @@ func getActivityStatistics(query bson.M) (map[string]modelV1.ActivityLog, error)
 	return activityLog, nil
 }
 
-func getTaskStatistics(query bson.M) (int64, []modelV1.TaskRecord, error) {
-	var records []modelV1.TaskRecord
+func getTaskStatistics(userName string, startTime, endTime time.Time) (int64, []modelV1.TaskRecord, error) {
+	query := bson.M{}
+	query["username"] = userName
+	query["completedate"] = bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location())}
+	query["completedate"] = bson.M{operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())}
+
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"completeDate", 1}})
+
+	var records []modelV1.TaskRecord
 	err := mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, query, findOptions)
 	if err != nil {
 		return 0, nil, err
