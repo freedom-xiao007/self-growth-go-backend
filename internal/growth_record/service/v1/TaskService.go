@@ -56,7 +56,7 @@ func (t *taskService) Complete(id, username string) error {
 		return err
 	}
 
-	taskRecord := modelV1.NewTaskRecord(taskConfig.Name, taskConfig.Description, taskConfig.Label, username,
+	taskRecord := modelV1.NewTaskRecord(id, taskConfig.Name, taskConfig.Description, taskConfig.Label, username,
 		taskConfig.CycleType, taskConfig.LearnType, time.Now())
 	err = mgm.Coll(&modelV1.TaskRecord{}).Create(taskRecord)
 	if err != nil {
