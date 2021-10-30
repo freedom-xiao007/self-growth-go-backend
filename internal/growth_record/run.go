@@ -1,17 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/kamva/mgm/v3"
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
+	"os"
 	"seltGrowth/internal/growth_record/controller"
 	"seltGrowth/internal/growth_record/middleware"
 )
 
 func initMongodb() {
 	// Setup the mgm default config
-	err := mgm.SetDefaultConfig(nil, "phone_record", options.Client().ApplyURI("mongodb://localhost:27017"))
+	username := os.Getenv("mongo_user")
+	passowrd := os.Getenv("mongo_password")
+	host := os.Getenv("mongo_host")
+	port := os.Getenv("mongo_port")
+	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s", username, passowrd, host, port)
+	log.Info("mongoURI", mongoURI)
+	err := mgm.SetDefaultConfig(nil, "phone_record", options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,11 +65,12 @@ func InitRoute(router *gin.Engine) {
 		{
 			task.GET("/list", taskController.TaskList)
 			task.POST("/add", taskController.AddTask)
-			task.POST("/complete", taskController.Complete)
+			task.POST("/complete/:id", taskController.Complete)
 			task.GET("/history", taskController.History)
 			task.POST("/addTaskGroup", taskController.AddTaskGroup)
 			task.GET("/listByGroup", taskController.TaskListByGroup)
 			task.GET("/overview", taskController.Overview)
+			task.POST("/deleteGroup/:name", taskController.DeleteGroup)
 		}
 
 		label := v1.Group("/label")
