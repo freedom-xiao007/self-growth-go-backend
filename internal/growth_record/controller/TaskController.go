@@ -46,8 +46,8 @@ func (t *TaskController) AddTask(c *gin.Context) {
 }
 
 func (t *TaskController) Complete(c *gin.Context) {
-	id := c.PostForm("id")
-	err := t.srv.Complete(id[1:len(id)-1], GetLoginUserName(c))
+	id := c.Param("id")
+	err := t.srv.Complete(id, GetLoginUserName(c))
 	if err != nil {
 		ErrorResponse(c, 400, err.Error())
 		return
