@@ -207,8 +207,17 @@ func taskStatistics(query bson.M) (interface{}, error) {
 }
 
 func (t *taskService) DeleteTaskGroup(groupName string, userName string) error {
+	var taskGroup modelV1.TaskGroup
+	err := mgm.Coll(&modelV1.TaskGroup{}).First(bson.M{"name": groupName, "username": userName}, &taskGroup)
+	if err != nil {
+		return err
+	}
+	if taskGroup.UserName != userName {
+		return errors.New("越权删除他人数据")
+	}
+
 	var taskConfigs []modelV1.TaskConfig
-	err := mgm.Coll(&modelV1.TaskConfig{}).SimpleFind(&taskConfigs, bson.M{"username": userName, "group": groupName})
+	err = mgm.Coll(&modelV1.TaskConfig{}).SimpleFind(&taskConfigs, bson.M{"username": userName, "group": groupName})
 	if err != nil {
 		return err
 	}
@@ -220,11 +229,7 @@ func (t *taskService) DeleteTaskGroup(groupName string, userName string) error {
 		}
 	}
 
-	var taskGroup modelV1.TaskGroup
-	err = mgm.Coll(&modelV1.TaskGroup{}).First(bson.M{"name": groupName, "username": userName}, &taskGroup)
-	if err != nil {
-		return err
-	}
+
 	err = mgm.Coll(&modelV1.TaskGroup{}).Delete(&taskGroup)
 	if err != nil {
 		return err
