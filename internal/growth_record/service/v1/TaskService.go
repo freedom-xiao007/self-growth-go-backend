@@ -113,11 +113,15 @@ func (t *taskService) TaskListByGroup(username string) ([]map[string]interface{}
 	}
 	for _, taskConfig := range taskConfigs {
 		var records []modelV1.TaskRecord
-		err = mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, bson.M{"username": username})
+		query := bson.M{"username": username, "configid": taskConfig.ID.Hex()}
+		err = mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, query)
 		if err != nil {
 			return nil, err
 		}
 		taskConfig.RefreshStatus(records)
+		if taskConfig.IsComplete {
+			continue
+		}
 
 		taskOfGroup[taskConfig.Group] = append(taskOfGroup[taskConfig.Group], taskConfig)
 	}
