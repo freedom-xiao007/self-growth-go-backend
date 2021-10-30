@@ -13,6 +13,7 @@ type TaskGroup struct {
 	CycleType        int8   `json:"cycleType"`
 	IsComplete       bool   `json:"isComplete"`
 	LearnType        int8   `json:"learnType"`
+	ModifyId         string `json:"modifyId"`
 }
 
 func NewTaskGroup(name, username, description, label string, cycleType, learnType int8) *TaskGroup {

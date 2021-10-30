@@ -128,3 +128,18 @@ func (t *TaskController) DeleteTask(c *gin.Context) {
 	}
 	SuccessResponseWithoutData(c)
 }
+
+func (t *TaskController) ModifyGroup(c *gin.Context) {
+	var taskGroup modelV1.TaskGroup
+	err := c.BindJSON(&taskGroup)
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	err = t.srv.ModifyGroup(taskGroup)
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponseWithoutData(c)
+}

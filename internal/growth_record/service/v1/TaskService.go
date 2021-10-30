@@ -20,6 +20,7 @@ type TaskService interface {
 	Overview(userName string, startTimeStamp, endTimeStamp int64) (interface{}, error)
 	DeleteTaskGroup(groupName string, userName string) error
 	DeleteTask(id string, userName string) error
+	ModifyGroup(taskGroup modelV1.TaskGroup) error
 }
 
 type taskService struct {
@@ -254,4 +255,15 @@ func (t *taskService) DeleteTask(id string, userName string) error {
 		return err
 	}
 	return nil
+}
+
+func (t *taskService) ModifyGroup(taskGroupModify modelV1.TaskGroup) error {
+	var taskGroup modelV1.TaskGroup
+	err := mgm.Coll(&modelV1.TaskGroup{}).FindByID(taskGroupModify.ModifyId, &taskGroup)
+	if err != nil {
+		return err
+	}
+
+	taskGroup.Name = taskGroupModify.Name
+	return mgm.Coll(&modelV1.TaskGroup{}).Update(&taskGroup)
 }

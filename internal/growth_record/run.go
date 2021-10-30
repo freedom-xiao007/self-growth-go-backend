@@ -72,6 +72,7 @@ func InitRoute(router *gin.Engine) {
 			task.GET("/overview", taskController.Overview)
 			task.POST("/deleteGroup/:name", taskController.DeleteGroup)
 			task.POST("/deleteTask/:id", taskController.DeleteTask)
+			task.POST("/modifyGroup", taskController.ModifyGroup)
 		}
 
 		label := v1.Group("/label")
