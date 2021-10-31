@@ -147,11 +147,13 @@ func (t *TaskController) ModifyGroup(c *gin.Context) {
 
 func (t *TaskController) DayStatistics(c *gin.Context) {
 	timestamp, err := strconv.Atoi(c.Query("timestamp"))
+	refresh := c.Query("refresh") == "true"
+	showAll := c.Query("showAll") == "true"
 	if err != nil {
 		ErrorResponse(c, 400, err.Error())
 		return
 	}
-	data, err := t.srv.DayStatistics(time.Unix(int64(timestamp), 0), GetLoginUserName(c))
+	data, err := t.srv.DayStatistics(time.Unix(int64(timestamp), 0), GetLoginUserName(c), refresh, showAll)
 	if err != nil {
 		ErrorResponse(c, 400, err.Error())
 		return

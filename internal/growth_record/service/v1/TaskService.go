@@ -23,7 +23,7 @@ type TaskService interface {
 	DeleteTaskGroup(groupName string, userName string) error
 	DeleteTask(id string, userName string) error
 	ModifyGroup(taskGroup modelV1.TaskGroup) error
-	DayStatistics(day time.Time, userName string) (modelV1.DayStatistics, error)
+	DayStatistics(day time.Time, userName string, refresh bool, showAll bool) (modelV1.DayStatistics, error)
 }
 
 type taskService struct {
@@ -276,13 +276,13 @@ func (t *taskService) ModifyGroup(taskGroupModify modelV1.TaskGroup) error {
 }
 
 
-func (t *taskService) DayStatistics(day time.Time, userName string) (modelV1.DayStatistics, error) {
+func (t *taskService) DayStatistics(day time.Time, userName string, refresh bool, showAll bool) (modelV1.DayStatistics, error) {
 	startTime := time.Date(day.Year(), day.Month(), day.Day(), 6, 0, 0, 0, day.Location())
 	date := fmt.Sprintf("%04d-%02d-%02d", startTime.Year(), startTime.Month(), startTime.Day())
 
 	var existDayStatistics modelV1.DayStatistics
 	_ = mgm.Coll(&modelV1.DayStatistics{}).First(bson.M{"username": userName, "date": date}, &existDayStatistics)
-	if !existDayStatistics.IsEmpty() {
+	if !refresh && !existDayStatistics.IsEmpty() {
 		log.Info("统计存在，直接读取记录")
 		return existDayStatistics, nil
 	}
@@ -293,7 +293,7 @@ func (t *taskService) DayStatistics(day time.Time, userName string) (modelV1.Day
 	query["date"] = bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location())}
 	query["date"] = bson.M{operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())}
 
-	activityLog, err := getActivityStatistics(userName, startTime, endTime)
+	activityLog, err := getActivityStatistics(userName, startTime, endTime, showAll)
 	if err != nil {
 		return modelV1.DayStatistics{}, err
 	}
@@ -310,7 +310,7 @@ func (t *taskService) DayStatistics(day time.Time, userName string) (modelV1.Day
 	return dayStatistics, nil
 }
 
-func getActivityStatistics(userName string, startTime, endTime time.Time) (map[string]modelV1.ActivityLog, error) {
+func getActivityStatistics(userName string, startTime, endTime time.Time, showAll bool) (map[string]modelV1.ActivityLog, error) {
 	var activities []modelV1.ActivityModel
 	err := mgm.Coll(&modelV1.ActivityModel{}).SimpleFind(&activities, bson.M{"username": userName})
 	if err != nil {
@@ -343,7 +343,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time) (map[s
 	activityDateLog := make(map[string][]time.Time)
 	for _, item := range phoneUseRecords {
 		activity := item.Activity
-		if _, ok := activity2Application[activity]; !ok {
+		if _, ok := activity2Application[activity]; !showAll && !ok {
 			continue
 		}
 
