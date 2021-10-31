@@ -310,7 +310,7 @@ func (t *taskService) DayStatistics(day time.Time, userName string, refresh bool
 	return dayStatistics, nil
 }
 
-func getActivityStatistics(userName string, startTime, endTime time.Time, showAll bool) (map[string]modelV1.ActivityLog, error) {
+func getActivityStatistics(userName string, startTime, endTime time.Time, showAll bool) ([]modelV1.ActivityLog, error) {
 	var activities []modelV1.ActivityModel
 	err := mgm.Coll(&modelV1.ActivityModel{}).SimpleFind(&activities, bson.M{"username": userName})
 	if err != nil {
@@ -337,7 +337,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 		return nil, err
 	}
 
-	activityLog := make(map[string]modelV1.ActivityLog)
+	activityLog := make([]modelV1.ActivityLog, 0)
 	activitySet := make(map[string]bool)
 	activityAmount := make(map[string]int64)
 	activityDateLog := make(map[string][]time.Time)
@@ -359,7 +359,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 	}
 
 	for key, _ := range activitySet {
-		activityLog[key] = *modelV1.NewActivityLog(key, activity2Application[key].Application, activity2Application[key].Label, activityAmount[key], activityDateLog[key])
+		activityLog = append(activityLog, *modelV1.NewActivityLog(key, activity2Application[key].Application, activity2Application[key].Label, activityAmount[key], activityDateLog[key]))
 	}
 	return activityLog, nil
 }

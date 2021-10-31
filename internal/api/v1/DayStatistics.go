@@ -11,7 +11,7 @@ type DayStatistics struct {
 	Date string `json:"date"`
 	CompleteTaskAmount int64 `json:"completeTaskAmount"`
 	CompleteTaskLog    []TaskRecord `json:"completeTaskLog"`
-	ActivityLog map[string]ActivityLog `json:"activityLog"`
+	ActivityLog []ActivityLog `json:"activityLog"`
 	UserName         string `json:"userName"`
 }
 
@@ -19,7 +19,7 @@ func (d *DayStatistics) IsEmpty() bool {
 	return reflect.DeepEqual(*d, DayStatistics{})
 }
 
-func NewDayStatistics(date string, completeTaskAmount int64, completeTaskLog []TaskRecord, activityLog map[string]ActivityLog) *DayStatistics {
+func NewDayStatistics(date string, completeTaskAmount int64, completeTaskLog []TaskRecord, activityLog []ActivityLog) *DayStatistics {
 	return &DayStatistics{
 		Date: date,
 		CompleteTaskAmount: completeTaskAmount,
