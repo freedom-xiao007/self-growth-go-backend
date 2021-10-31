@@ -35,10 +35,11 @@ type ActivityLog struct {
 	Dates  []time.Time `json:"dates"`
 }
 
-func NewActivityLog(name string, amount int64, dates []time.Time) *ActivityLog {
+func NewActivityLog(name, application string, amount int64, dates []time.Time) *ActivityLog {
 	return &ActivityLog{
 		Name: name,
 		Amount: amount,
 		Dates: dates,
+		Application: application,
 	}
 }

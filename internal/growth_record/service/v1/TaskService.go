@@ -311,6 +311,17 @@ func (t *taskService) DayStatistics(day time.Time, userName string) (modelV1.Day
 }
 
 func getActivityStatistics(userName string, startTime, endTime time.Time) (map[string]modelV1.ActivityLog, error) {
+	var applicationActivity []modelV1.ApplicationActivity
+	err := mgm.Coll(&modelV1.ApplicationActivity{}).SimpleFind(&applicationActivity, bson.M{"username": userName})
+	if err != nil {
+		return nil, err
+	}
+
+	activity2Application := make(map[string]string)
+	for _, item := range applicationActivity {
+		activity2Application[item.ActivityName] = item.ApplicationName
+	}
+
 	query := bson.M{}
 	query["username"] = userName
 	query["date"] = bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location())}
@@ -320,7 +331,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time) (map[s
 	findOptions.SetSort(bson.D{{"date", 1}})
 
 	var phoneUseRecords []modelV1.PhoneUseRecord
-	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&phoneUseRecords, query, findOptions)
+	err = mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&phoneUseRecords, query, findOptions)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -332,6 +343,10 @@ func getActivityStatistics(userName string, startTime, endTime time.Time) (map[s
 	activityDateLog := make(map[string][]time.Time)
 	for _, item := range phoneUseRecords {
 		activity := item.Activity
+		if _, ok := activity2Application[activity]; !ok {
+			continue
+		}
+		
 		if _, ok := activityAmount[activity]; !ok {
 			activityAmount[activity] = 1
 			activityDateLog[activity] = make([]time.Time, 0)
@@ -344,7 +359,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time) (map[s
 	}
 
 	for key, _ := range activitySet {
-		activityLog[key] = *modelV1.NewActivityLog(key, activityAmount[key], activityDateLog[key])
+		activityLog[key] = *modelV1.NewActivityLog(key, activity2Application[key], activityAmount[key], activityDateLog[key])
 	}
 	return activityLog, nil
 }
