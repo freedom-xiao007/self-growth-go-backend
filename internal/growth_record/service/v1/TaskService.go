@@ -279,6 +279,7 @@ func (t *taskService) ModifyGroup(taskGroupModify modelV1.TaskGroup) error {
 func (t *taskService) DayStatistics(day time.Time, userName string, refresh bool, showAll bool) (modelV1.DayStatistics, error) {
 	startTime := time.Date(day.Year(), day.Month(), day.Day(), 6, 0, 0, 0, day.Location())
 	date := fmt.Sprintf("%04d-%02d-%02d", startTime.Year(), startTime.Month(), startTime.Day())
+	log.Info("day statistics", date)
 
 	var existDayStatistics modelV1.DayStatistics
 	_ = mgm.Coll(&modelV1.DayStatistics{}).First(bson.M{"username": userName, "date": date}, &existDayStatistics)
@@ -316,16 +317,18 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 	if err != nil {
 		return nil, err
 	}
+	log.Infoln(startTime, endTime)
 
 	activity2Application := make(map[string]modelV1.ActivityModel)
 	for _, activity := range activities {
 		activity2Application[activity.Activity] = activity
 	}
 
-	query := bson.M{}
-	query["username"] = userName
-	query["date"] = bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location())}
-	query["date"] = bson.M{operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())}
+	query := bson.M{
+		"username": userName,
+		"date": bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location()),
+			operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())},
+	}
 
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"date", 1}})
