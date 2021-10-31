@@ -31,7 +31,7 @@ func NewDayStatistics(date string, completeTaskAmount int64, completeTaskLog []T
 type ActivityLog struct {
 	Name string `json:"name"`
 	Application string `json:"application"`
-	Amount int64 `json:"amount"`
+	Amount float64 `json:"amount"`
 	Dates  []time.Time `json:"dates"`
 	Label string `json:"label"`
 }
@@ -39,7 +39,7 @@ type ActivityLog struct {
 func NewActivityLog(name, application, label string, amount int64, dates []time.Time) *ActivityLog {
 	return &ActivityLog{
 		Name: name,
-		Amount: amount,
+		Amount: float64(amount) * 10 / 60,
 		Dates: dates,
 		Application: application,
 		Label: label,
