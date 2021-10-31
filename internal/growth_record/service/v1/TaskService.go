@@ -311,15 +311,15 @@ func (t *taskService) DayStatistics(day time.Time, userName string) (modelV1.Day
 }
 
 func getActivityStatistics(userName string, startTime, endTime time.Time) (map[string]modelV1.ActivityLog, error) {
-	var applicationActivity []modelV1.ApplicationActivity
-	err := mgm.Coll(&modelV1.ApplicationActivity{}).SimpleFind(&applicationActivity, bson.M{"username": userName})
+	var activities []modelV1.ActivityModel
+	err := mgm.Coll(&modelV1.ActivityModel{}).SimpleFind(&activities, bson.M{"username": userName})
 	if err != nil {
 		return nil, err
 	}
 
-	activity2Application := make(map[string]string)
-	for _, item := range applicationActivity {
-		activity2Application[item.ActivityName] = item.ApplicationName
+	activity2Application := make(map[string]modelV1.ActivityModel)
+	for _, activity := range activities {
+		activity2Application[activity.Activity] = activity
 	}
 
 	query := bson.M{}
@@ -346,7 +346,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time) (map[s
 		if _, ok := activity2Application[activity]; !ok {
 			continue
 		}
-		
+
 		if _, ok := activityAmount[activity]; !ok {
 			activityAmount[activity] = 1
 			activityDateLog[activity] = make([]time.Time, 0)
@@ -359,7 +359,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time) (map[s
 	}
 
 	for key, _ := range activitySet {
-		activityLog[key] = *modelV1.NewActivityLog(key, activity2Application[key], activityAmount[key], activityDateLog[key])
+		activityLog[key] = *modelV1.NewActivityLog(key, activity2Application[key].Application, activity2Application[key].Label, activityAmount[key], activityDateLog[key])
 	}
 	return activityLog, nil
 }
