@@ -329,6 +329,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 		"date": bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location()),
 			operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())},
 	}
+	log.Info(query)
 
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"date", 1}})
@@ -353,7 +354,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 		if _, ok := activityAmount[activity]; !ok {
 			activityAmount[activity] = 1
 			activityDateLog[activity] = make([]time.Time, 0)
-			activityDateLog[activity] = append(activityDateLog[activity], item.Date.Local())
+			activityDateLog[activity] = append(activityDateLog[activity], item.Date.In(time.Local))
 			activitySet[activity] = true
 		} else {
 			activityAmount[activity] = activityAmount[activity] + 1
@@ -368,10 +369,11 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 }
 
 func getTaskStatistics(userName string, startTime, endTime time.Time) (int64, []modelV1.TaskRecord, error) {
-	query := bson.M{}
-	query["username"] = userName
-	query["completedate"] = bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location())}
-	query["completedate"] = bson.M{operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())}
+	query := bson.M{
+		"username": userName,
+		"completedate": bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location()),
+			operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())},
+	}
 
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"completeDate", 1}})
