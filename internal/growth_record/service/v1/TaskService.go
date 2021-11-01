@@ -353,7 +353,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 		if _, ok := activityAmount[activity]; !ok {
 			activityAmount[activity] = 1
 			activityDateLog[activity] = make([]time.Time, 0)
-			activityDateLog[activity] = append(activityDateLog[activity], item.Date)
+			activityDateLog[activity] = append(activityDateLog[activity], item.Date.Local())
 			activitySet[activity] = true
 		} else {
 			activityAmount[activity] = activityAmount[activity] + 1
