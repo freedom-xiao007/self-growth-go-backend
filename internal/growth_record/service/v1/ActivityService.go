@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	modelV1 "seltGrowth/internal/api/v1"
 	"sort"
+	"time"
 )
 
 type ActivityService interface {
@@ -145,11 +146,11 @@ func (a *activityService) ActivityHistory(username, activityName string, startTi
 	if activityName != "" {
 		query["activity"] = activityName
 	}
-	if startTime.Valid {
-		query["date"] = bson.M{operator.Gte: startTime.Time}
-	}
-	if startTime.Valid {
-		query["date"] = bson.M{operator.Let: endTime.Time}
+	if startTime.Valid && endTime.Valid {
+		query["date"] = bson.M{
+			operator.Gte: time.Date(startTime.Time.Year(), startTime.Time.Month(), startTime.Time.Day(), startTime.Time.Hour(), startTime.Time.Minute(), startTime.Time.Second(), 0, startTime.Time.Location()),
+			operator.Lte: time.Date(endTime.Time.Year(), endTime.Time.Month(), endTime.Time.Day(), endTime.Time.Hour(), endTime.Time.Minute(), endTime.Time.Second(), 0, endTime.Time.Location()),
+		}
 	}
 
 	findOptions := options.Find()
@@ -169,6 +170,7 @@ func (a *activityService) ActivityHistory(username, activityName string, startTi
 
 	for index, record := range records {
 		records[index].Application = activity2Application[record.Activity].Application
+		records[index].Date = record.Date.Local()
 	}
 	return records, nil
 }
