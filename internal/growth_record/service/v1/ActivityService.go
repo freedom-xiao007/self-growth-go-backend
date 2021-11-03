@@ -16,7 +16,7 @@ type ActivityService interface {
 	UpdateActivityName(model modelV1.ActivityModel) (modelV1.ActivityModel, error)
 	AddRecord(record *modelV1.PhoneUseRecord) error
 	Overview(username string) ([]map[string]interface{}, error)
-	ActivityHistory(username, activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error)
+	ActivityHistory(username, activityName string, startTime, endTime sql.NullTime, pageIndex, pageSize int) ([]modelV1.PhoneUseRecord, int64, error)
 	UpdateActivityModel(model modelV1.ActivityModel) error
 }
 
@@ -139,7 +139,7 @@ func getActivity2Application(username string) (map[string]modelV1.ActivityModel,
 	return activity2Application, nil
 }
 
-func (a *activityService) ActivityHistory(username, activityName string, startTime, endTime sql.NullTime) ([]modelV1.PhoneUseRecord, error) {
+func (a *activityService) ActivityHistory(username, activityName string, startTime, endTime sql.NullTime, pageIndex, pageSize int) ([]modelV1.PhoneUseRecord, int64, error) {
 	var records []modelV1.PhoneUseRecord
 	query := bson.M{}
 	query["username"] = username
@@ -156,23 +156,28 @@ func (a *activityService) ActivityHistory(username, activityName string, startTi
 	findOptions := options.Find()
 	// Sort by `price` field descending
 	findOptions.SetSort(bson.D{{"date", -1}})
-	findOptions.SetSkip(0)
-	findOptions.SetLimit(100)
+	findOptions.SetSkip(int64(pageIndex * pageSize))
+	findOptions.SetLimit(int64(pageSize))
 	err := mgm.Coll(&modelV1.PhoneUseRecord{}).SimpleFind(&records, query, findOptions)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	activity2Application, err := getActivity2Application(username)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	for index, record := range records {
 		records[index].Application = activity2Application[record.Activity].Application
 		records[index].Date = record.Date.Local()
 	}
-	return records, nil
+
+	total, err := mgm.Coll(&modelV1.PhoneUseRecord{}).CountDocuments(mgm.Ctx(), bson.M{})
+	if err != nil {
+		return nil, 0, err
+	}
+	return records, total, nil
 }
 
 func (a *activityService) UpdateActivityModel(activityModel modelV1.ActivityModel) error {

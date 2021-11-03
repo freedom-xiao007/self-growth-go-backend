@@ -55,12 +55,9 @@ func (a *ActivityController) Overview(c *gin.Context) {
 
 func (a *ActivityController) ActivityHistory(c *gin.Context) {
 	activityName := c.Query("activity")
+
 	start, err := strconv.Atoi(c.Query("startTimeStamp"))
 	end, err := strconv.Atoi(c.Query("endTimeStamp"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
 	startTime := sql.NullTime{Valid: false}
 	endTime := sql.NullTime{Valid: false}
 	if start > 0 {
@@ -69,13 +66,35 @@ func (a *ActivityController) ActivityHistory(c *gin.Context) {
 	if end > 0 {
 		endTime = sql.NullTime{Valid: true, Time: time.Unix(int64(end), 0)}
 	}
-	data, err := a.srv.ActivityHistory(GetLoginUserName(c), activityName, startTime, endTime)
+
+	size := 100
+	if c.Query("pageSize") != "" {
+		size, err = strconv.Atoi(c.Query("pageSize"))
+		if err != nil {
+			ErrorResponse(c, 400, err.Error())
+			return
+		}
+	}
+	index := 0
+	if c.Query("pageIndex") != "" {
+		index, err = strconv.Atoi(c.Query("pageIndex"))
+		if err != nil {
+			ErrorResponse(c, 400, err.Error())
+			return
+		}
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	data, total, err := a.srv.ActivityHistory(GetLoginUserName(c), activityName, startTime, endTime, index, size)
 	if err != nil {
 		log.Error(err)
 		ErrorResponse(c, 400, err.Error())
 		return
 	}
-	SuccessResponse(c, data)
+	SuccessResponse(c, map[string]interface{}{"data": data, "total": total})
 }
 
 func (a *ActivityController) UpdateActivityModel(c *gin.Context) {
