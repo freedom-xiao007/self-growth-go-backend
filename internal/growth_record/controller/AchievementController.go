@@ -18,13 +18,13 @@ func NewAchievementController() *AchievementController {
 	}
 }
 
-func (a *AchievementController) get(c *gin.Context) {
+func (a *AchievementController) Get(c *gin.Context) {
 	timestamp, err := strconv.Atoi(c.Query("timestamp"))
 	if err != nil {
 		ErrorResponse(c, 400, errors.New("请传入有效时间").Error())
 		return
 	}
-	data, err := a.srv.Get(time.Unix(int64(timestamp), 0))
+	data, err := a.srv.Get(time.Unix(int64(timestamp), 0), GetLoginUserName(c))
 	if err != nil {
 		ErrorResponse(c, 400, err.Error())
 		return

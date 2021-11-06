@@ -23,3 +23,12 @@ func NewAchievement(date string, flesh, spirit, divinity int64) *Achievement {
 		Divinity: divinity,
 	}
 }
+
+func NewEmptyAchievement(date string) *Achievement {
+	return &Achievement{
+		Date: date,
+		Flesh: 0,
+		Spirit: 0,
+		Divinity: 0,
+	}
+}

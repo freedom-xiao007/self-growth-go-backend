@@ -26,6 +26,7 @@ func InitRoute(router *gin.Engine) {
 	taskController := controller.NewTaskController()
 	userController := controller.NewUserController()
 	labelController := controller.NewLabelController()
+	achievementController := controller.NewAchievementController()
 
 	// 路由分组、中间件、认证
 	v1 := router.Group("/v1", middleware.JWTAuth())
@@ -63,6 +64,11 @@ func InitRoute(router *gin.Engine) {
 		{
 			label.POST("/add", labelController.Add)
 			label.GET("/list", labelController.List)
+		}
+
+		achievement := v1.Group("/achievement")
+		{
+			achievement.GET("/get", achievementController.Get)
 		}
 	}
 

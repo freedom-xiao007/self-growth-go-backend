@@ -66,3 +66,13 @@ func NewDayAchievement(dayStatistics v1.DayStatistics) *DayAchievement {
 		IsImport: false,
 	}
 }
+
+func NewEmptyDayAchievement(date string) *DayAchievement {
+	return &DayAchievement{
+		Date: date,
+		Spirit: 0,
+		Strength: 0,
+		Reiki: 0,
+		IsImport: false,
+	}
+}
