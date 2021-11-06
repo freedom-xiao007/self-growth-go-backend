@@ -78,6 +78,7 @@ func InitRoute(router *gin.Engine) {
 		hero := v1.Group("/hero")
 		{
 			hero.GET("/list", heroController.List)
+			hero.GET("/gameUserInfo", heroController.UserInfo)
 		}
 	}
 

@@ -17,11 +17,20 @@ func NewHeroController() *HeroController {
 }
 
 // List 获取所有的角色列表
-func (c HeroController) List(ctx *gin.Context) {
+func (c *HeroController) List(ctx *gin.Context) {
 	data, err := c.srv.List()
 	if err != nil {
 		controller.ErrorResponse(ctx, 400, err.Error())
 		return
 	}
 	controller.SuccessResponse(ctx, data)
+}
+
+func (c *HeroController) UserInfo(context *gin.Context) {
+	data, err := c.srv.UserInfo(controller.GetLoginUserName(context))
+	if err != nil {
+		controller.ErrorResponse(context, 400, err.Error())
+		return
+	}
+	controller.SuccessResponse(context, data)
 }
