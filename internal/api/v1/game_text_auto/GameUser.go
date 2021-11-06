@@ -24,7 +24,7 @@ type GameUser struct {
 	Strength int64 `json:"strength"`
 	Reiki int64 `json:"reiki"`
 	Username string `json:"username"`
-	OwnHero  []string `json:"ownHero"`
+	OwnHero  map[string]Hero `json:"ownHero"`
 }
 
 func NewGameUser(achievement DayAchievement) *GameUser {

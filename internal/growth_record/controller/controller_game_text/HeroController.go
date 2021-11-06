@@ -34,3 +34,13 @@ func (c *HeroController) UserInfo(context *gin.Context) {
 	}
 	controller.SuccessResponse(context, data)
 }
+
+func (c *HeroController) HeroRound(ctx *gin.Context) {
+	data, err := c.srv.HeroRound(controller.GetLoginUserName(ctx))
+	if err != nil {
+		controller.ErrorResponse(ctx, 400, err.Error())
+		return
+	}
+	controller.SuccessResponse(ctx, data)
+	return
+}

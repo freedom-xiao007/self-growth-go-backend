@@ -1,6 +1,9 @@
 package game_text_auto
 
-import "github.com/kamva/mgm/v3"
+import (
+	"github.com/kamva/mgm/v3"
+	"github.com/mozillazg/go-pinyin"
+)
 
 // Hero 角色
 // spirit 灵魂力：
@@ -26,9 +29,14 @@ import "github.com/kamva/mgm/v3"
 // defence 防御：角色的物理防御
 //
 // moveSpeed 移动力：角色与一回合内在平地可以移动的格子数量，基础上限为10（算上鞋子）
+//
+// Level 星级：每提升已星级 所需碎片翻倍；基础 10；最大1000；星级无上限
+//
+// Chip 碎片：每提升已星级 所需碎片翻倍；基础 10；最大1000；星级无上限
 type Hero struct {
 	mgm.DefaultModel `bson:",inline"`
-	Name             string `json:"name"`
+	NameZW             string `json:"name_zw"`
+	NamePY             string `json:"name_py"`
 	Description      string `json:"description"`
 	Spirit int64 `json:"spirit"`
 	SpiritAttack int64 `json:"spiritAttack"`
@@ -40,21 +48,35 @@ type Hero struct {
 	Dodge int64 `json:"dodge"`
 	Defence int64 `json:"defence"`
 	MoveSpeed int64 `json:"moveSpeed"`
+	Level int64 `json:"level"`
+	Chip int64 `json:"chip"`
 }
 
 func NewHero(name, desc string) *Hero {
 	return &Hero{
-		Name: name,
-		Description: desc,
-		Spirit: 86840,
-		SpiritAttack: 1,
+		NameZW:        name,
+		NamePY:        HeroNameZW2PY(name),
+		Description:   desc,
+		Spirit:        86840,
+		SpiritAttack:  1,
 		SpiritDefence: 1,
-		Bleed: 1000,
-		Strong: 1,
-		Shooting: 1,
-		AttackSpeed: 1,
-		Dodge: 1,
-		Defence: 1,
-		MoveSpeed: 1,
+		Bleed:         1000,
+		Strong:        1,
+		Shooting:      1,
+		AttackSpeed:   1,
+		Dodge:         1,
+		Defence:       1,
+		MoveSpeed:     1,
+		Level: 1,
+		Chip: 0,
 	}
+}
+
+func HeroNameZW2PY(name string) string {
+	namePy := ""
+	pyStr := pinyin.NewArgs()
+	for _, item := range pinyin.Pinyin(name, pyStr) {
+		namePy += item[0]
+	}
+	return namePy
 }
