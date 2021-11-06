@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"seltGrowth/internal/growth_record/controller"
+	"seltGrowth/internal/growth_record/controller/controller_game_text"
 	"seltGrowth/internal/growth_record/middleware"
 	"seltGrowth/internal/pkg/store/mongodb"
 )
@@ -27,6 +28,7 @@ func InitRoute(router *gin.Engine) {
 	userController := controller.NewUserController()
 	labelController := controller.NewLabelController()
 	achievementController := controller.NewAchievementController()
+	heroController := controller_game_text.NewHeroController()
 
 	// 路由分组、中间件、认证
 	v1 := router.Group("/v1", middleware.JWTAuth())
@@ -71,6 +73,11 @@ func InitRoute(router *gin.Engine) {
 			achievement.GET("/get", achievementController.Get)
 			achievement.POST("/sync", achievementController.Sync)
 			achievement.POST("/import", achievementController.Import)
+		}
+
+		hero := v1.Group("/hero")
+		{
+			hero.GET("/list", heroController.List)
 		}
 	}
 
