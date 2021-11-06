@@ -52,3 +52,15 @@ func (c *HeroController) OwnHeroes(ctx *gin.Context) {
 	}
 	controller.SuccessResponse(ctx, data)
 }
+
+func (c *HeroController) ModifyOwnHeroProperty(ctx *gin.Context) {
+	heroName := ctx.Query("hero")
+	property := ctx.Query("property")
+	modifyType := ctx.Query("type")
+	err := c.srv.ModifyOwnHeroProperty(heroName, property, modifyType, controller.GetLoginUserName(ctx))
+	if err != nil {
+		controller.ErrorResponse(ctx, 400, err.Error())
+		return
+	}
+	controller.SuccessResponseWithoutData(ctx)
+}
