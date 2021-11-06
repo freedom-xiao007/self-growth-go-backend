@@ -18,8 +18,14 @@
 ### web相关
 - [gin获取路径中的参数](https://blog.csdn.net/ma2595162349/article/details/109398069)
 
+### 定时任务
+- [cron](https://pkg.go.dev/github.com/robfig/cron#section-readme)
+
 ### 环境变量
 - [Golang 获取系统环境变量](https://studygolang.com/articles/3387)
 
-## 工具
+### 工具
 - [https://robomongo.org/download](https://robomongo.org/download)
+
+### 游戏相关
+- [电子游戏术语列表](https://zh.wikipedia.org/wiki/%E9%9B%BB%E5%AD%90%E9%81%8A%E6%88%B2%E8%A1%93%E8%AA%9E%E5%88%97%E8%A1%A8)
