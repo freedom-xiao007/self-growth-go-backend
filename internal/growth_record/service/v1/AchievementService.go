@@ -15,6 +15,7 @@ import (
 type AchievementService interface {
 	Get(endTime time.Time, username string) ([]game_text_auto.DayAchievement, error)
 	Sync(current time.Time, name string) error
+	Import(id string) error
 }
 
 type achievementService struct {
@@ -81,5 +82,42 @@ func (a *achievementService) Sync(current time.Time, username string) error {
 		return err
 	}
 
+	return nil
+}
+
+func (a *achievementService) Import(id string) error {
+	var achievementExist game_text_auto.DayAchievement
+	err := mgm.Coll(&game_text_auto.DayAchievement{}).FindByID(id, &achievementExist)
+	if err != nil {
+		return err
+	}
+
+	if achievementExist.IsImport {
+		return errors.New("此记录已被导入")
+	}
+
+	var gameUser game_text_auto.GameUser
+	err = mgm.Coll(&game_text_auto.GameUser{}).First(bson.M{"username": achievementExist.Username}, &gameUser)
+	if err != nil {
+		user := game_text_auto.NewGameUser(achievementExist)
+		err := mgm.Coll(&game_text_auto.GameUser{}).Create(user)
+		if err != nil {
+			return err
+		}
+	} else {
+		gameUser.Spirit += achievementExist.Spirit
+		gameUser.Strength += achievementExist.Strength
+		gameUser.Reiki += achievementExist.Reiki
+		err = mgm.Coll(&game_text_auto.GameUser{}).Update(&gameUser)
+		if err != nil {
+			return err
+		}
+	}
+
+	achievementExist.IsImport = true
+	err = mgm.Coll(&achievementExist).Update(&achievementExist)
+	if err != nil {
+		return err
+	}
 	return nil
 }

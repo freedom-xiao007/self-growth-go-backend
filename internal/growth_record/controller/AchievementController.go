@@ -48,3 +48,12 @@ func (a *AchievementController) Sync(c *gin.Context) {
 
 	SuccessResponseWithoutData(c)
 }
+
+func (a *AchievementController) Import(c *gin.Context) {
+	err := a.srv.Import(c.Query("id"))
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponseWithoutData(c)
+}

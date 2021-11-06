@@ -70,6 +70,7 @@ func InitRoute(router *gin.Engine) {
 		{
 			achievement.GET("/get", achievementController.Get)
 			achievement.POST("/sync", achievementController.Sync)
+			achievement.POST("/import", achievementController.Import)
 		}
 	}
 
