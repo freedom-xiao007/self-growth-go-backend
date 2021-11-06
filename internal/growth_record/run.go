@@ -69,6 +69,7 @@ func InitRoute(router *gin.Engine) {
 		achievement := v1.Group("/achievement")
 		{
 			achievement.GET("/get", achievementController.Get)
+			achievement.POST("/sync", achievementController.Sync)
 		}
 	}
 

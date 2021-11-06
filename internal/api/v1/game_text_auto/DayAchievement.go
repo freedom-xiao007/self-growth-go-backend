@@ -25,6 +25,7 @@ type DayAchievement struct {
 	Strength int64 `json:"strength"`
 	Reiki int64 `json:"reiki"`
 	IsImport bool `json:"isImport"`
+	Username string `json:"username"`
 }
 
 func NewDayAchievement(dayStatistics v1.DayStatistics) *DayAchievement {
@@ -64,15 +65,17 @@ func NewDayAchievement(dayStatistics v1.DayStatistics) *DayAchievement {
 		Strength: strengthAmount,
 		Reiki: reikiAmount,
 		IsImport: false,
+		Username: dayStatistics.UserName,
 	}
 }
 
-func NewEmptyDayAchievement(date string) *DayAchievement {
+func NewEmptyDayAchievement(date, username string) *DayAchievement {
 	return &DayAchievement{
 		Date: date,
 		Spirit: 0,
 		Strength: 0,
 		Reiki: 0,
 		IsImport: false,
+		Username: username,
 	}
 }
