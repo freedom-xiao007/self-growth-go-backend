@@ -41,3 +41,20 @@ type Hero struct {
 	Defence int64 `json:"defence"`
 	MoveSpeed int64 `json:"moveSpeed"`
 }
+
+func NewHero(name, desc string) *Hero {
+	return &Hero{
+		Name: name,
+		Description: desc,
+		Spirit: 86840,
+		SpiritAttack: 1,
+		SpiritDefence: 1,
+		Bleed: 1000,
+		Strong: 1,
+		Shooting: 1,
+		AttackSpeed: 1,
+		Dodge: 1,
+		Defence: 1,
+		MoveSpeed: 1,
+	}
+}
