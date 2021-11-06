@@ -17,12 +17,14 @@ import (
 //     学习分钟数 == 获得的灵气值
 //     任务换算：1输出类：非博客笔记 == 20灵气，1输出类：博客笔记 == 50灵气, 1其他 == 10灵脉
 //     灵气：抽取角色、购买装备等等
+// OwnHero 拥有的角色列表
 type GameUser struct {
 	mgm.DefaultModel `bson:",inline"`
 	Spirit int64 `json:"spirit"`
 	Strength int64 `json:"strength"`
 	Reiki int64 `json:"reiki"`
 	Username string `json:"username"`
+	OwnHero  []string `json:"ownHero"`
 }
 
 func NewGameUser(achievement DayAchievement) *GameUser {
