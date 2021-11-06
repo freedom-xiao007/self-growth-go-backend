@@ -63,5 +63,6 @@ func NewDayAchievement(dayStatistics v1.DayStatistics) *DayAchievement {
 		Spirit: spirit,
 		Strength: strengthAmount,
 		Reiki: reikiAmount,
+		IsImport: false,
 	}
 }
