@@ -30,9 +30,9 @@ import (
 //
 // moveSpeed 移动力：角色与一回合内在平地可以移动的格子数量，基础上限为10（算上鞋子）
 //
-// Level 星级：每提升已星级 所需碎片翻倍；基础 10；最大1000；星级无上限
+// level 星级：每提升已星级 所需碎片翻倍；基础 10；最大1000；星级无上限
 //
-// Chip 碎片：每提升已星级 所需碎片翻倍；基础 10；最大1000；星级无上限
+// chip 碎片：每提升已星级 所需碎片翻倍；基础 10；最大1000；星级无上限
 type Hero struct {
 	mgm.DefaultModel `bson:",inline"`
 	NameZW             string `json:"name_zw"`

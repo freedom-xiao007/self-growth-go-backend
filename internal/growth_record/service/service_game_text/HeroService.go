@@ -13,6 +13,7 @@ type HeroService interface {
 	List() ([]game_text_auto.Hero, error)
 	UserInfo(userName string) (game_text_auto.GameUser, error)
 	HeroRound(userName string) (string, error)
+	OwnHeroes(userName string) ([]game_text_auto.Hero, error)
 }
 
 type heroService struct {
@@ -83,4 +84,21 @@ func (h *heroService) HeroRound(userName string) (string, error) {
 		return "", err
 	}
 	return fmt.Sprintf("获得新英雄：%s", hero.NameZW), nil
+}
+
+func (h *heroService) OwnHeroes(userName string) (heroes []game_text_auto.Hero, err error) {
+	var user game_text_auto.GameUser
+	err = mgm.Coll(&user).First(bson.M{"username": userName}, &user)
+	if err != nil {
+		return nil, err
+	}
+
+	if user.OwnHero == nil {
+		return heroes, nil
+	}
+
+	for _, value := range user.OwnHero {
+		heroes = append(heroes, value)
+	}
+	return heroes, nil
 }

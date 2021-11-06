@@ -42,5 +42,13 @@ func (c *HeroController) HeroRound(ctx *gin.Context) {
 		return
 	}
 	controller.SuccessResponse(ctx, data)
-	return
+}
+
+func (c *HeroController) OwnHeroes(ctx *gin.Context) {
+	data, err := c.srv.OwnHeroes(controller.GetLoginUserName(ctx))
+	if err != nil {
+		controller.ErrorResponse(ctx, 400, err.Error())
+		return
+	}
+	controller.SuccessResponse(ctx, data)
 }
