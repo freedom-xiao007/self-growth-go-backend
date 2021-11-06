@@ -14,6 +14,7 @@
 - [Go语言项目开发实战](https://time.geekbang.org/column/article/381392)
 - [Kamva/mgm](https://github.com/Kamva/mgm)
 - [9.5 存储密码](https://www.kancloud.cn/kancloud/web-application-with-golang/44198)
+- [汉语拼音转换工具 Go 版。](https://pkg.go.dev/github.com/mozillazg/go-pinyin#section-readme)
 
 ### web相关
 - [gin获取路径中的参数](https://blog.csdn.net/ma2595162349/article/details/109398069)
@@ -29,3 +30,4 @@
 
 ### 游戏相关
 - [电子游戏术语列表](https://zh.wikipedia.org/wiki/%E9%9B%BB%E5%AD%90%E9%81%8A%E6%88%B2%E8%A1%93%E8%AA%9E%E5%88%97%E8%A1%A8)
+- [上古神祇 与 神话人物](https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E7%A5%9E%E8%AF%9D%E4%BA%BA%E7%89%A9%E5%88%97%E8%A1%A8)
