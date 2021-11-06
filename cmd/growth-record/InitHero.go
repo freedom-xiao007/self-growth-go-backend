@@ -27,7 +27,7 @@ func main() {
 
 	for _, hero := range heroes {
 		var heroExist game_text_auto.Hero
-		err := mgm.Coll(&heroExist).First(bson.M{"name": hero}, &heroExist)
+		err := mgm.Coll(&heroExist).First(bson.M{"name_py": hero}, &heroExist)
 		if err != nil {
 			newHero := game_text_auto.NewHero(hero, hero)
 			err := mgm.Coll(&heroExist).Create(newHero)
