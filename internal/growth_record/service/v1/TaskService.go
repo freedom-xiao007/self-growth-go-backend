@@ -277,9 +277,10 @@ func (t *taskService) ModifyGroup(taskGroupModify modelV1.TaskGroup) error {
 
 
 func (t *taskService) DayStatistics(day time.Time, userName string, refresh bool, showAll bool) (modelV1.DayStatistics, error) {
-	startTime := time.Date(day.Year(), day.Month(), day.Day(), 6, 0, 0, 0, day.Location())
-	date := fmt.Sprintf("%04d-%02d-%02d", startTime.Year(), startTime.Month(), startTime.Day())
-	log.Info("day statistics", date)
+	endTime := time.Date(day.Year(), day.Month(), day.Day(), 22, 0, 0, 0, day.Location())
+	startTime := endTime.AddDate(0, 0, -1)
+	date := fmt.Sprintf("%04d-%02d-%02d", endTime.Year(), endTime.Month(), endTime.Day())
+	log.Info("day statistics:: ", date)
 
 	var existDayStatistics modelV1.DayStatistics
 	_ = mgm.Coll(&modelV1.DayStatistics{}).First(bson.M{"username": userName, "date": date}, &existDayStatistics)
@@ -287,12 +288,6 @@ func (t *taskService) DayStatistics(day time.Time, userName string, refresh bool
 		log.Info("统计存在，直接读取记录")
 		return existDayStatistics, nil
 	}
-
-	endTime := startTime.AddDate(0, 0, 1)
-	query := bson.M{}
-	query["username"] = userName
-	query["date"] = bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location())}
-	query["date"] = bson.M{operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())}
 
 	activityLog, err := getActivityStatistics(userName, startTime, endTime, showAll)
 	if err != nil {
@@ -326,8 +321,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 
 	query := bson.M{
 		"username": userName,
-		"date": bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location()),
-			operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())},
+		"date": bson.M{operator.Gte: startTime, operator.Lte: endTime},
 	}
 	log.Info(query)
 
@@ -341,6 +335,8 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 		return nil, err
 	}
 
+	latestActivity := ""
+	latestActivityDate := time.Time{}
 	activityLog := make([]modelV1.ActivityLog, 0)
 	activitySet := make(map[string]bool)
 	activityAmount := make(map[string]int64)
@@ -348,17 +344,44 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 	for _, item := range phoneUseRecords {
 		activity := item.Activity
 		if _, ok := activity2Application[activity]; !showAll && !ok {
+			if latestActivity == "" {
+				continue
+			}
+
+			if _, ok := activityAmount[latestActivity]; !ok {
+				activityAmount[latestActivity] = int64(item.Date.Sub(latestActivityDate).Minutes())
+				activityDateLog[latestActivity] = make([]time.Time, 0)
+				activityDateLog[latestActivity] = append(activityDateLog[latestActivity], latestActivityDate.In(time.Local))
+				activityDateLog[latestActivity] = append(activityDateLog[latestActivity], item.Date.In(time.Local))
+				activitySet[latestActivity] = true
+			} else {
+				activityAmount[latestActivity] = activityAmount[latestActivity] + int64(item.Date.Sub(latestActivityDate).Minutes())
+				activityDateLog[latestActivity] = append(activityDateLog[latestActivity], latestActivityDate.In(time.Local))
+				activityDateLog[latestActivity] = append(activityDateLog[latestActivity], item.Date.In(time.Local))
+			}
+
+			latestActivity = ""
 			continue
 		}
 
-		if _, ok := activityAmount[activity]; !ok {
-			activityAmount[activity] = 1
-			activityDateLog[activity] = make([]time.Time, 0)
-			activityDateLog[activity] = append(activityDateLog[activity], item.Date.In(time.Local))
-			activitySet[activity] = true
-		} else {
-			activityAmount[activity] = activityAmount[activity] + 1
-			activityDateLog[activity] = append(activityDateLog[activity], item.Date)
+		if latestActivity == "" {
+			latestActivity = activity
+			latestActivityDate = item.Date
+		} else if latestActivity != activity {
+			if _, ok := activityAmount[latestActivity]; !ok {
+				activityAmount[latestActivity] = int64(item.Date.Sub(latestActivityDate).Minutes())
+				activityDateLog[latestActivity] = make([]time.Time, 0)
+				activityDateLog[latestActivity] = append(activityDateLog[latestActivity], latestActivityDate.In(time.Local))
+				activityDateLog[latestActivity] = append(activityDateLog[latestActivity], item.Date.In(time.Local))
+				activitySet[latestActivity] = true
+			} else {
+				activityAmount[latestActivity] = activityAmount[latestActivity] + int64(item.Date.Sub(latestActivityDate).Minutes())
+				activityDateLog[latestActivity] = append(activityDateLog[latestActivity], latestActivityDate.In(time.Local))
+				activityDateLog[latestActivity] = append(activityDateLog[latestActivity], item.Date.In(time.Local))
+			}
+
+			latestActivity = activity
+			latestActivityDate = item.Date
 		}
 	}
 
@@ -371,8 +394,7 @@ func getActivityStatistics(userName string, startTime, endTime time.Time, showAl
 func getTaskStatistics(userName string, startTime, endTime time.Time) (int64, []modelV1.TaskRecord, error) {
 	query := bson.M{
 		"username": userName,
-		"completedate": bson.M{operator.Gte: time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 6, 0, 0, 0, startTime.Location()),
-			operator.Lte: time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 6, 0, 0, 0, endTime.Location())},
+		"completedate": bson.M{operator.Gte: startTime, operator.Lte: endTime},
 	}
 
 	findOptions := options.Find()

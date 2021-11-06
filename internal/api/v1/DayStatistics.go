@@ -39,7 +39,7 @@ type ActivityLog struct {
 func NewActivityLog(name, application, label string, amount int64, dates []time.Time) *ActivityLog {
 	return &ActivityLog{
 		Name: name,
-		Amount: amount * 10 / 60,
+		Amount: amount,
 		Dates: dates,
 		Application: application,
 		Label: label,
