@@ -5,17 +5,20 @@ import (
 	log "github.com/sirupsen/logrus"
 	modelV1 "seltGrowth/internal/api/v1"
 	srvV1 "seltGrowth/internal/growth_record/service/v1"
+	statisticsService "seltGrowth/internal/pkg/service/statistics"
 	"strconv"
 	"time"
 )
 
 type TaskController struct {
 	srv srvV1.TaskService
+	statistics statisticsService.DayStatisticsService
 }
 
 func NewTaskController() *TaskController {
 	return &TaskController{
 		srv: srvV1.NewTaskService(),
+		statistics: statisticsService.NewDayStatisticsService(),
 	}
 }
 
@@ -153,7 +156,7 @@ func (t *TaskController) DayStatistics(c *gin.Context) {
 		ErrorResponse(c, 400, err.Error())
 		return
 	}
-	data, err := t.srv.DayStatistics(time.Unix(int64(timestamp), 0), GetLoginUserName(c), refresh, showAll)
+	data, err := t.statistics.DayStatistics(time.Unix(int64(timestamp), 0), GetLoginUserName(c), refresh, showAll)
 	if err != nil {
 		ErrorResponse(c, 400, err.Error())
 		return

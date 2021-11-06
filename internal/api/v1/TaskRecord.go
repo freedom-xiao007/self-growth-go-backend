@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+// TaskRecord 任务完成记录
+// CompleteDate
+// Name
+// Description
+// Label 任务标签，字符串：学习、睡觉、运动
+// CycleType 任务周期：
+// Type 任务输入输出类型：0 输入； 1 输出
+// OutputType 任务输出类型：0 代码； 1 博客/笔记
 type TaskRecord struct {
 	mgm.DefaultModel `bson:",inline"`
 	CompleteDate     time.Time `json:"completeDate"`
@@ -15,17 +23,19 @@ type TaskRecord struct {
 	UserName         string    `json:"userName"`
 	Type             int8      `json:"type"`
 	ConfigId         string    `json:"configId"`
+	OutputType       int8      `json:"outputType"`
 }
 
-func NewTaskRecord(id, name, description, label, username string, cycleType, TaskType int8, completeDate time.Time) *TaskRecord {
+func NewTaskRecord(id, username string, completeDate time.Time, config TaskConfig) *TaskRecord {
 	return &TaskRecord{
-		Name:         name,
-		Description:  description,
-		Label:        label,
-		CycleType:    cycleType,
+		Name: config.Name,
+		Description: config.Description,
+		Label: config.Label,
+		CycleType: config.CycleType,
 		CompleteDate: completeDate,
-		Type:         TaskType,
+		Type: config.LearnType,
 		UserName:     username,
 		ConfigId: id,
+		OutputType: config.OutputType,
 	}
 }

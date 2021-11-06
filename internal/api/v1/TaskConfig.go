@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+// TaskConfig 任务配置信息
+// CompleteDate
+// Name
+// Description
+// Label 任务标签，字符串：学习、睡觉、运动
+// CycleType 任务周期：
+// LearnType 任务输入输出类型：0 输入； 1 输出
+// OutputType 任务输出类型：0 代码； 1 博客/笔记
 type TaskConfig struct {
 	mgm.DefaultModel `bson:",inline"`
 	Name             string `json:"name"`
