@@ -156,6 +156,7 @@ func modifyLevelProperty(user game_text_auto.GameUser, hero game_text_auto.Hero,
 	}
 
 	hero.Level = hero.Level + 1
+	hero.Chip = hero.Chip - 10
 	user.OwnHero[heroName] = hero
 	err := mgm.Coll(&user).Update(&user)
 	if err != nil {
