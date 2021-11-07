@@ -55,6 +55,24 @@ type Hero struct {
 	IsBattle bool `json:"isBattle"`
 }
 
+// HeroSlice 按照 Person.Age 从大到小排序
+type HeroSlice []Hero
+
+// Len 重写 Len() 方法
+func (h HeroSlice) Len() int {
+	return len(h)
+}
+
+// Swap 重写 Swap() 方法
+func (h HeroSlice) Swap(i, j int){
+	h[i], h[j] = h[j], h[i]
+}
+
+// Less 重写 Less() 方法， 从大到小排序
+func (h HeroSlice) Less(i, j int) bool {
+	return h[j].NamePY < h[i].NamePY
+}
+
 func NewHero(name, desc string) *Hero {
 	return &Hero{
 		NameZW:        name,

@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"math/rand"
 	"seltGrowth/internal/api/v1/game_text_auto"
+	"sort"
 	"time"
 )
 
@@ -105,6 +106,7 @@ func (h *heroService) OwnHeroes(userName string) (heroes []game_text_auto.Hero, 
 	for _, value := range user.OwnHero {
 		heroes = append(heroes, value)
 	}
+	sort.Stable(game_text_auto.HeroSlice(heroes))
 	return heroes, nil
 }
 
