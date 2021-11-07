@@ -10,6 +10,11 @@ import (
 
 func InitMongodb() {
 	// Setup the mgm default config
+	database := os.Getenv("mongo_database")
+	if database == "" {
+		database = "phone_record"
+	}
+
 	username := os.Getenv("mongo_user")
 	password := os.Getenv("mongo_password")
 	host := os.Getenv("mongo_host")
@@ -22,7 +27,7 @@ func InitMongodb() {
 	}
 
 	if username == "" && password == "" {
-		err := mgm.SetDefaultConfig(nil, "phone_record", options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
+		err := mgm.SetDefaultConfig(nil, database, options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -31,7 +36,7 @@ func InitMongodb() {
 
 	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s", username, password, host, port)
 	log.Info("mongoURI", mongoURI)
-	err := mgm.SetDefaultConfig(nil, "phone_record", options.Client().ApplyURI(mongoURI))
+	err := mgm.SetDefaultConfig(nil, database, options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatal(err)
 	}

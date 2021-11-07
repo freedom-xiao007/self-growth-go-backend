@@ -20,6 +20,7 @@ func main() {
 
 	dayAchievementCal := job.NewDayAchievementCal()
 	battleAuto := job.NewBattleAuto()
+	winAward := job.NewAwardRound()
 
 	c := cron.New(cron.WithSeconds())
 	_, err := c.AddFunc("0 10 6 * * *", func() {
@@ -43,6 +44,17 @@ func main() {
 			if err != nil {
 				log.Error(err)
 				continue
+			}
+
+			// 奖励结算
+			if win {
+				var gameUser game_text_auto.GameUser
+				err = mgm.Coll(&gameUser).First(bson.M{"username": user.Email}, &gameUser)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
+				msg += "\n" + winAward.Award(gameUser)
 			}
 
 			battleLog := game_text_auto.BattleLog{
