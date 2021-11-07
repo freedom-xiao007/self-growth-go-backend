@@ -3,6 +3,9 @@ package game_text_auto
 import (
 	"github.com/kamva/mgm/v3"
 	"github.com/mozillazg/go-pinyin"
+	"go.mongodb.org/mongo-driver/bson"
+	"math/rand"
+	"time"
 )
 
 // Enemy 敌人
@@ -67,4 +70,37 @@ func EnemyNameZW2PY(name string) string {
 		namePy += item[0]
 	}
 	return namePy
+}
+
+func RoundGenerateEnemy() (enemy Enemy, err error) {
+	var enemies []Enemy
+	err = mgm.Coll(&Enemy{}).SimpleFind(&enemies, bson.M{})
+	if err != nil {
+		return enemy, err
+	}
+
+	rand.Seed(time.Now().Unix())
+	roundIndex := rand.Int63n(int64(len(enemies)))
+	enemy = enemies[roundIndex]
+
+	return Enemy{
+		NameZW: enemy.NameZW,
+		NamePY:        enemy.NamePY,
+		Description: enemy.Description,
+		SpiritAttack:  roundValue(10),
+		SpiritDefence: roundValue(10),
+		Bleed:         roundValue(10),
+		Strong:        roundValue(10),
+		Shooting:      roundValue(10),
+		AttackSpeed:   roundValue(10),
+		Dodge:         roundValue(10),
+		Defence:       roundValue(10),
+		MoveSpeed:     roundValue(10),
+		Level: roundValue(10),
+	}, nil
+}
+
+func roundValue(max int64) int64 {
+	rand.Seed(time.Now().Unix())
+	return rand.Int63n(max)
 }
