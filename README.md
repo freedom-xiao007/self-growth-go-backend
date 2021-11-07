@@ -71,7 +71,10 @@ networks:
 
 ### 工具
 - [https://robomongo.org/download](https://robomongo.org/download)
+- [最简单的Go Dockerfile编写姿势，没有之一！](https://segmentfault.com/a/1190000038437935)
 
 ### 游戏相关
 - [电子游戏术语列表](https://zh.wikipedia.org/wiki/%E9%9B%BB%E5%AD%90%E9%81%8A%E6%88%B2%E8%A1%93%E8%AA%9E%E5%88%97%E8%A1%A8)
 - [上古神祇 与 神话人物](https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E7%A5%9E%E8%AF%9D%E4%BA%BA%E7%89%A9%E5%88%97%E8%A1%A8)
+- [三毒、八苦，您知道多少？】](http://blog.sina.com.cn/s/blog_62d64c350100k1pt.html)
+- [电子游戏术语列表](https://zh.wikipedia.org/wiki/%E9%9B%BB%E5%AD%90%E9%81%8A%E6%88%B2%E8%A1%93%E8%AA%9E%E5%88%97%E8%A1%A8)
