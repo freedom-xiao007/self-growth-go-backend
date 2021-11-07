@@ -17,7 +17,8 @@ RUN go build -ldflags="-s -w" -o /app/run internal/growth_record/run.go
 
 FROM alpine
 
-RUN apk update --no-cache && apk add --no-cache ca-certificates tzdata
+RUN echo -e 'https://mirrors.aliyun.com/alpine/v3.6/main/\nhttps://mirrors.aliyun.com/alpine/v3.6/community/' > /etc/apk/repositories && \
+        apk update --no-cache && apk add --no-cache ca-certificates tzdata
 ENV TZ Asia/Shanghai
 
 WORKDIR /app
