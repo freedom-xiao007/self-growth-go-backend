@@ -64,3 +64,13 @@ func (c *HeroController) ModifyOwnHeroProperty(ctx *gin.Context) {
 	}
 	controller.SuccessResponseWithoutData(ctx)
 }
+
+func (c *HeroController) BattleHero(ctx *gin.Context) {
+	heroName := ctx.Query("hero")
+	err := c.srv.BattleHero(heroName, controller.GetLoginUserName(ctx))
+	if err != nil {
+		controller.ErrorResponse(ctx, 400, err.Error())
+		return
+	}
+	controller.SuccessResponseWithoutData(ctx)
+}

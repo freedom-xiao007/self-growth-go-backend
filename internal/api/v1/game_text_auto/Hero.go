@@ -33,6 +33,8 @@ import (
 // level 星级：每提升已星级 所需碎片翻倍；基础 10；最大1000；星级无上限
 //
 // chip 碎片：每提升已星级 所需碎片翻倍；基础 10；最大1000；星级无上限
+//
+// IsBattle 是否上阵战斗
 type Hero struct {
 	mgm.DefaultModel `bson:",inline"`
 	NameZW             string `json:"name_zw"`
@@ -50,6 +52,7 @@ type Hero struct {
 	MoveSpeed int64 `json:"moveSpeed"`
 	Level int64 `json:"level"`
 	Chip int64 `json:"chip"`
+	IsBattle bool `json:"isBattle"`
 }
 
 func NewHero(name, desc string) *Hero {
@@ -69,6 +72,7 @@ func NewHero(name, desc string) *Hero {
 		MoveSpeed:     1,
 		Level: 1,
 		Chip: 0,
+		IsBattle: false,
 	}
 }
 

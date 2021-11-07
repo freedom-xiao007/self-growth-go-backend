@@ -82,6 +82,7 @@ func InitRoute(router *gin.Engine) {
 			hero.POST("/heroRound", heroController.HeroRound)
 			hero.GET("/ownHeroes", heroController.OwnHeroes)
 			hero.POST("/modifyOwnHeroProperty", heroController.ModifyOwnHeroProperty)
+			hero.POST("/battleHero", heroController.BattleHero)
 		}
 	}
 

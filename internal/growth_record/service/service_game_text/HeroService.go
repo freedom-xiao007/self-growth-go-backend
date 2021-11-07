@@ -16,6 +16,7 @@ type HeroService interface {
 	HeroRound(userName string) (string, error)
 	OwnHeroes(userName string) ([]game_text_auto.Hero, error)
 	ModifyOwnHeroProperty(heroName string, property string, modifyType string, userName string) error
+	BattleHero(heroName string, userName string) error
 }
 
 type heroService struct {
@@ -188,6 +189,23 @@ func modifyPhysicalProperty(property string, modifyValue int64, user game_text_a
 
 	user.OwnHero[heroName] = hero
 	err := mgm.Coll(&user).Update(&user)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// BattleHero todo 获取影响或许可以抽成一个通用的方法
+func (h *heroService) BattleHero(heroName string, userName string) error {
+	var user game_text_auto.GameUser
+	err := mgm.Coll(&user).First(bson.M{"username": userName}, &user)
+	if err != nil {
+		return err
+	}
+	hero := user.OwnHero[heroName]
+	hero.IsBattle = !hero.IsBattle
+	user.OwnHero[heroName] = hero
+	err = mgm.Coll(&user).Update(&user)
 	if err != nil {
 		return err
 	}
