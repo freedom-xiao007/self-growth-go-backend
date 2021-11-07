@@ -10,6 +10,27 @@
 & 'C:\Program Files\OpenSSL-Win64\bin\openssl.exe' x509 -req -days 365 -in server.csr -signkey server_no_passwd.key -out server.crt
 ```
 
+## 构建与部署相关
+```yaml
+version: '2'
+services:
+  # Go 后台Api服务
+  controller4g:
+    image: controller_api:v1
+    ports:
+      - 8081:8080
+    environment:
+      - mongo_user=user
+      - mongo_password=password
+      - mongo_host=127.0.0.1
+      - mongo_port=27017
+      
+networks:
+  default:
+    external:
+      name: self_growth 
+```
+
 ## 参考链接
 - [Go语言项目开发实战](https://time.geekbang.org/column/article/381392)
 - [Kamva/mgm](https://github.com/Kamva/mgm)
