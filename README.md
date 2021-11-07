@@ -20,7 +20,7 @@ docker build -t controller:v1 -f .\internal\growth_record\Dockerfile .
 
 cd .\internal\game_text_job\
 goctl docker -go main.go
-docker build -t controller:v1 -f .\internal\game_text_job\Dockerfile .
+docker build -t game_text_job:v1 -f internal/game_text_job/Dockerfile .
 ```
 
 ### Portainer
@@ -32,6 +32,15 @@ services:
     image: controller_api:v1
     ports:
       - 8081:8080
+    environment:
+      - mongo_user=user
+      - mongo_password=password
+      - mongo_host=127.0.0.1
+      - mongo_port=27017
+      
+  # Go 文本游戏服务后台
+  gameTextJob:
+    image: game_text_job:v1
     environment:
       - mongo_user=user
       - mongo_password=password
