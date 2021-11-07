@@ -12,4 +12,5 @@ type BattleLog struct {
 	IsWin bool `json:"isWin"`
 	Hero Hero `json:"hero"`
 	Enemy Enemy `json:"enemy"`
+	Username string `json:"username"`
 }

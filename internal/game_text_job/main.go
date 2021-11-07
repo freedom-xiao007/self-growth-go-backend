@@ -51,6 +51,7 @@ func main() {
 				IsWin: win,
 				Hero: hero,
 				Enemy: enemy,
+				Username: user.Email,
 			}
 			err = mgm.Coll(&battleLog).Create(&battleLog)
 			if err != nil {
