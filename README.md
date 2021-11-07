@@ -11,6 +11,19 @@
 ```
 
 ## 构建与部署相关
+### Docker镜像工具
+```shell
+go get -u github.com/tal-tech/go-zero/tools/goctl
+cd .\internal\growth_record
+goctl docker -go run.go
+docker build -t controller:v1 -f .\internal\growth_record\Dockerfile .
+
+cd .\internal\game_text_job\
+goctl docker -go main.go
+docker build -t controller:v1 -f .\internal\game_text_job\Dockerfile .
+```
+
+### Portainer
 ```yaml
 version: '2'
 services:
