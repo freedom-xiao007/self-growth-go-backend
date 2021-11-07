@@ -36,7 +36,7 @@ func (b *battleAuto) Battle(username string) (message string, isWin bool, hero g
 	}
 
 	if len(battleHeroes) < 1 {
-		return "无上阵英雄，失败", false, hero, enemy, err
+		return "无上阵英雄，失败", false, hero, enemy, nil
 	}
 
 	rand.Seed(time.Now().Unix())
