@@ -224,6 +224,9 @@ func (h *heroService) BattleLog(userName string, pageIndex int, pageSize int) (l
 	if err != nil {
 		return nil, 0, err
 	}
+	for i, _ := range logs {
+		logs[i].Date = logs[i].Date.In(time.Local)
+	}
 
 	total, err = mgm.Coll(&game_text_auto.BattleLog{}).CountDocuments(mgm.Ctx(), query)
 	if err != nil {
