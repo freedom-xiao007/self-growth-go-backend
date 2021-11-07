@@ -15,6 +15,7 @@
 - [Kamva/mgm](https://github.com/Kamva/mgm)
 - [9.5 存储密码](https://www.kancloud.cn/kancloud/web-application-with-golang/44198)
 - [汉语拼音转换工具 Go 版。](https://pkg.go.dev/github.com/mozillazg/go-pinyin#section-readme)
+- [Go生成随机数](https://blog.csdn.net/u011304970/article/details/72721747)
 
 ### web相关
 - [gin获取路径中的参数](https://blog.csdn.net/ma2595162349/article/details/109398069)
