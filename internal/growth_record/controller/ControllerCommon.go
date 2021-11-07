@@ -26,6 +26,16 @@ func SuccessResponseWithoutData(c *gin.Context) {
 	})
 }
 
+func SuccessResponseWithPage(c *gin.Context, data interface{}, pageSize, pageIndex, total int64) {
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"data": data,
+		"pageSize": pageSize,
+		"pageIndex": pageIndex,
+		"total": total,
+	})
+}
+
 func GetLoginUserName(c *gin.Context) string {
 	return c.GetHeader("userName")
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"math/rand"
 	"seltGrowth/internal/api/v1/game_text_auto"
 	"time"
@@ -17,6 +18,7 @@ type HeroService interface {
 	OwnHeroes(userName string) ([]game_text_auto.Hero, error)
 	ModifyOwnHeroProperty(heroName string, property string, modifyType string, userName string) error
 	BattleHero(heroName string, userName string) error
+	BattleLog(userName string, pageIndex int, pageSize int) (logs []game_text_auto.BattleLog, total int64, err error)
 }
 
 type heroService struct {
@@ -210,4 +212,22 @@ func (h *heroService) BattleHero(heroName string, userName string) error {
 		return err
 	}
 	return nil
+}
+
+func (h *heroService) BattleLog(userName string, pageIndex int, pageSize int) (logs []game_text_auto.BattleLog, total int64, err error) {
+	query := bson.M{"username": userName}
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"date", -1}})
+	findOptions.SetSkip(int64(pageIndex * pageSize))
+	findOptions.SetLimit(int64(pageSize))
+	err = mgm.Coll(&game_text_auto.BattleLog{}).SimpleFind(&logs, query, findOptions)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	total, err = mgm.Coll(&game_text_auto.BattleLog{}).CountDocuments(mgm.Ctx(), query)
+	if err != nil {
+		return nil, 0, err
+	}
+	return logs, total, nil
 }
