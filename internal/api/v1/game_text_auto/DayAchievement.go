@@ -45,13 +45,7 @@ func NewDayAchievement(dayStatistics v1.DayStatistics) *DayAchievement {
 
 	taskLogs := dayStatistics.CompleteTaskLog
 	for _, taskLog := range taskLogs {
-		if taskLog.Type == 0 {
-			reikiAmount += 10
-		} else if taskLog.Type == 1 && taskLog.OutputType == 0 {
-			reikiAmount += 20
-		} else if taskLog.Type == 1 && taskLog.OutputType == 1 {
-			reikiAmount += 50
-		}
+		reikiAmount += calTaskAchievement(taskLog)
 	}
 
 	spirit := int64(10)
@@ -67,6 +61,17 @@ func NewDayAchievement(dayStatistics v1.DayStatistics) *DayAchievement {
 		IsImport: false,
 		Username: dayStatistics.UserName,
 	}
+}
+
+func calTaskAchievement(taskLog v1.TaskRecord) int64 {
+	if taskLog.Type == 0 {
+		return 50
+	} else if taskLog.Type == 1 && taskLog.OutputType == 0 {
+		return 100
+	} else if taskLog.Type == 1 && taskLog.OutputType == 1 {
+		return 300
+	}
+	return 0
 }
 
 func NewEmptyDayAchievement(date, username string) *DayAchievement {
