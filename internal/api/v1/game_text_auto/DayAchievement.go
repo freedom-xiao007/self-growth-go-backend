@@ -28,7 +28,7 @@ type DayAchievement struct {
 	Username string `json:"username"`
 }
 
-func NewDayAchievement(dayStatistics v1.DayStatistics) *DayAchievement {
+func NewDayAchievement(dayStatistics v1.DayStatistics, learnPower int64, runningPower int64, sleepPower int64, improvePower int64) *DayAchievement {
 	sleepAmount := int64(0)
 	strengthAmount := int64(0)
 	reikiAmount := int64(0)
@@ -53,11 +53,24 @@ func NewDayAchievement(dayStatistics v1.DayStatistics) *DayAchievement {
 		spirit *= 2
 	}
 
+	if learnPower <= 0 {
+		learnPower = 1
+	}
+	if runningPower <= 0 {
+		runningPower = 1
+	}
+	if sleepPower <= 0 {
+		sleepPower = 1
+	}
+	if improvePower <= 0 {
+		improvePower = 1
+	}
+
 	return &DayAchievement{
 		Date: dayStatistics.Date,
-		Spirit: spirit,
-		Strength: strengthAmount,
-		Reiki: reikiAmount,
+		Spirit: spirit * sleepPower + spirit * improvePower,
+		Strength: strengthAmount * runningPower + strengthAmount * improvePower,
+		Reiki: reikiAmount * learnPower + reikiAmount * improvePower,
 		IsImport: false,
 		Username: dayStatistics.UserName,
 	}

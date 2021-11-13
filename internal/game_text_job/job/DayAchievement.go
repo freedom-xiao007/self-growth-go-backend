@@ -42,7 +42,9 @@ func (d *dayAchievementCal) Cal() error {
 			log.Error(err)
 			return err
 		}
-		achievement := game_text_auto.NewDayAchievement(dayStatistics)
+
+		log.Infof("连续打卡奖励倍率为：learn -- %d, running -- %d, sleep -- %d, improve -- %d", user.LearnPersistDay, user.RunningPersistDay, user.SleepPersistDay, user.ImprovePersistDay)
+		achievement := game_text_auto.NewDayAchievement(dayStatistics, user.LearnPersistDay, user.RunningPersistDay, user.SleepPersistDay, user.ImprovePersistDay)
 		err = mgm.Coll(&game_text_auto.DayAchievement{}).Create(achievement)
 		if err != nil {
 			log.Error(err)
@@ -51,6 +53,23 @@ func (d *dayAchievementCal) Cal() error {
 
 		s, err := json.MarshalIndent(achievement, "", "    ")
 		log.Infof("昨日成就：：%s", string(s))
+
+		if achievement.Spirit > 0 {
+			user.SleepPersistDay = user.SleepPersistDay + 1
+		}
+		if achievement.Strength > 0 {
+			user.RunningPersistDay = user.RunningPersistDay + 1
+		}
+		if achievement.Reiki > 0 {
+			user.LearnPersistDay = user.LearnPersistDay + 1
+		}
+		if achievement.Spirit > 0 && achievement.Strength > 0 && achievement.Reiki > 0 {
+			user.ImprovePersistDay = user.ImprovePersistDay + 1
+		}
+		err = mgm.Coll(&user).Update(&user)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 	return nil
 }

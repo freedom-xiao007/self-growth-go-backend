@@ -30,7 +30,7 @@ func main() {
 		}
 	})
 
-	_, err = c.AddFunc("0/5 * * * * *", func() {
+	_, err = c.AddFunc("0 * * * * *", func() {
 		var users []v1.User
 		err := mgm.Coll(&v1.User{}).SimpleFind(&users, bson.M{})
 		if err != nil {

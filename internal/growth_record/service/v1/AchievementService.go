@@ -75,7 +75,7 @@ func (a *achievementService) Sync(current time.Time, username string) error {
 		return err
 	}
 
-	achievement := game_text_auto.NewDayAchievement(dayStatistics)
+	achievement := game_text_auto.NewDayAchievement(dayStatistics, 0, 0, 0, 0)
 	err = mgm.Coll(&game_text_auto.DayAchievement{}).Create(achievement)
 	if err != nil {
 		log.Error(err)
