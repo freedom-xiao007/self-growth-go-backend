@@ -72,7 +72,7 @@ func EnemyNameZW2PY(name string) string {
 	return namePy
 }
 
-func RoundGenerateEnemy() (enemy Enemy, err error) {
+func RoundGenerateEnemy(baseProperty int64) (enemy Enemy, err error) {
 	var enemies []Enemy
 	err = mgm.Coll(&Enemy{}).SimpleFind(&enemies, bson.M{})
 	if err != nil {
@@ -87,15 +87,15 @@ func RoundGenerateEnemy() (enemy Enemy, err error) {
 		NameZW: enemy.NameZW,
 		NamePY:        enemy.NamePY,
 		Description: enemy.Description,
-		SpiritAttack:  roundValue(10),
-		SpiritDefence: roundValue(10),
-		Bleed:         roundValue(10),
-		Strong:        roundValue(10),
-		Shooting:      roundValue(10),
-		AttackSpeed:   roundValue(10),
-		Dodge:         roundValue(10),
-		Defence:       roundValue(10),
-		MoveSpeed:     roundValue(10),
+		SpiritAttack:  roundValue(10) + baseProperty,
+		SpiritDefence: roundValue(10) + baseProperty,
+		Bleed:         roundValue(10) + baseProperty,
+		Strong:        roundValue(10) + baseProperty,
+		Shooting:      roundValue(10) + baseProperty,
+		AttackSpeed:   roundValue(10) + baseProperty,
+		Dodge:         roundValue(10) + baseProperty,
+		Defence:       roundValue(10) + baseProperty,
+		MoveSpeed:     roundValue(10) + baseProperty,
 		Level: roundValue(10),
 	}, nil
 }

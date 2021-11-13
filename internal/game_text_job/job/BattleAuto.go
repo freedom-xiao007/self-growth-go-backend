@@ -3,6 +3,7 @@ package job
 import (
 	"fmt"
 	"github.com/kamva/mgm/v3"
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"math/rand"
 	"seltGrowth/internal/api/v1/game_text_auto"
@@ -27,6 +28,8 @@ func (b *battleAuto) Battle(username string) (message string, isWin bool, hero g
 	if err != nil {
 		return "数据库异常", true, hero, enemy, err
 	}
+	days := int64(time.Now().Sub(user.CreatedAt).Hours() / 24)
+	log.Infof("已经战斗了：%d 天", days)
 
 	battleHeroes := make([]game_text_auto.Hero, 0)
 	for _, hero := range user.OwnHero {
@@ -43,7 +46,7 @@ func (b *battleAuto) Battle(username string) (message string, isWin bool, hero g
 	roundIndex := rand.Int63n(int64(len(battleHeroes)))
 	hero = battleHeroes[roundIndex]
 
-	enemy, err = game_text_auto.RoundGenerateEnemy()
+	enemy, err = game_text_auto.RoundGenerateEnemy(days)
 	if err != nil {
 		return "随机怪物生成异常", true, hero, enemy, err
 	}
