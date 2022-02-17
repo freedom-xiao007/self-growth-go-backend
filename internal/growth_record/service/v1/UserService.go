@@ -40,6 +40,12 @@ func (u *userService) Login(user modelV1.User) error {
 	if !isPass {
 		return errors.New("密码错误")
 	}
+
+	existUser.Applications = user.Applications
+	err = mgm.Coll(&existUser).Update(&existUser)
+	if err != nil {
+		return err
+	}
 	log.Infoln("用户登录：", user.Email)
 	return nil
 }

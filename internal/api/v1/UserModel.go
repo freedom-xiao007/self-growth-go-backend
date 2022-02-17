@@ -19,4 +19,5 @@ type User struct {
 	RunningPersistDay int64     `json:"runningPersistDay"`
 	SleepPersistDay   int64     `json:"sleepPersistDay"`
 	ImprovePersistDay int64     `json:"improvePersistDay"`
+	Applications      []string  `json:"applications"`
 }
