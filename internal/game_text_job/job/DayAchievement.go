@@ -2,8 +2,11 @@ package job
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/kamva/mgm/v3"
 	log "github.com/sirupsen/logrus"
+	"github.com/wxpusher/wxpusher-sdk-go"
+	"github.com/wxpusher/wxpusher-sdk-go/model"
 	"go.mongodb.org/mongo-driver/bson"
 	v1 "seltGrowth/internal/api/v1"
 	"seltGrowth/internal/api/v1/game_text_auto"
@@ -70,6 +73,10 @@ func (d *dayAchievementCal) Cal() error {
 		if err != nil {
 			log.Error(err)
 		}
+
+		msg := model.NewMessage("AT_CrUMMtfpshG6oo8dyAzWRrK4gl5PNwm6").SetContent(string(s)).AddUId("UID_clQRP3Pig7dxpSqGGICcrBy4KPTB")
+		msgArr, err := wxpusher.SendMessage(msg)
+		fmt.Println(msgArr, err)
 	}
 	return nil
 }
