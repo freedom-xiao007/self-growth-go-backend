@@ -24,7 +24,8 @@ func NewTaskController() *TaskController {
 
 func (t *TaskController) TaskList(c *gin.Context) {
 	isComplete := c.Query("isComplete")
-	tasks, err := t.srv.GetTaskList(isComplete, GetLoginUserName(c))
+	groupName := c.Query("groupName")
+	tasks, err := t.srv.GetTaskList(isComplete, groupName, GetLoginUserName(c))
 	if err != nil {
 		ErrorResponse(c, 400, err.Error())
 		return

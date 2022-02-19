@@ -11,7 +11,7 @@ import (
 )
 
 type TaskService interface {
-	GetTaskList(isComplete, username string) ([]modelV1.TaskConfig, error)
+	GetTaskList(isComplete, groupName, username string) ([]modelV1.TaskConfig, error)
 	Complete(id, username string) error
 	AddTask(task modelV1.TaskConfig) error
 	History(userName string) ([]modelV1.TaskRecord, error)
@@ -31,13 +31,19 @@ func NewTaskService() TaskService {
 	return &taskService{}
 }
 
-func (t *taskService) GetTaskList(isComplete, username string) ([]modelV1.TaskConfig, error) {
+func (t *taskService) GetTaskList(isComplete, groupName, username string) ([]modelV1.TaskConfig, error) {
+	query := bson.M{"username": username}
+	if groupName != "" {
+		query = bson.M{"username": username, "group": groupName}
+	}
+
 	var taskConfigs []modelV1.TaskConfig
-	err := mgm.Coll(&modelV1.TaskConfig{}).SimpleFind(&taskConfigs, bson.M{"username": username})
+	err := mgm.Coll(&modelV1.TaskConfig{}).SimpleFind(&taskConfigs, query)
 	if err != nil {
 		return nil, err
 	}
 
+	res := make([]modelV1.TaskConfig, 0)
 	for _, taskConfig := range taskConfigs {
 		var records []modelV1.TaskRecord
 		err = mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, bson.M{"username": username})
@@ -45,9 +51,12 @@ func (t *taskService) GetTaskList(isComplete, username string) ([]modelV1.TaskCo
 			return nil, err
 		}
 		taskConfig.RefreshStatus(records)
+		if (isComplete == "" || isComplete == "true") && taskConfig.IsComplete {
+			res = append(res, taskConfig)
+		}
 	}
 
-	return taskConfigs, nil
+	return res, nil
 }
 
 func (t *taskService) Complete(id, username string) error {
