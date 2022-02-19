@@ -21,6 +21,7 @@ type TaskService interface {
 	DeleteTaskGroup(groupName string, userName string) error
 	DeleteTask(id string, userName string) error
 	ModifyGroup(taskGroup modelV1.TaskGroup) error
+	GetAllGroups(userName string) ([]string, error)
 }
 
 type taskService struct {
@@ -127,7 +128,7 @@ func (t *taskService) TaskListByGroup(username string) ([]map[string]interface{}
 
 	result := make([]map[string]interface{}, 0)
 	for _, group := range taskGroups {
-		item := map[string]interface{} {"group": group, "tasks": taskOfGroup[group.Name]}
+		item := map[string]interface{}{"group": group, "tasks": taskOfGroup[group.Name]}
 		result = append(result, item)
 	}
 	return result, nil
@@ -236,7 +237,6 @@ func (t *taskService) DeleteTaskGroup(groupName string, userName string) error {
 		}
 	}
 
-
 	err = mgm.Coll(&modelV1.TaskGroup{}).Delete(&taskGroup)
 	if err != nil {
 		return err
@@ -269,4 +269,20 @@ func (t *taskService) ModifyGroup(taskGroupModify modelV1.TaskGroup) error {
 
 	taskGroup.Name = taskGroupModify.Name
 	return mgm.Coll(&modelV1.TaskGroup{}).Update(&taskGroup)
+}
+
+func (t *taskService) GetAllGroups(userName string) ([]string, error) {
+	var taskGroups []modelV1.TaskGroup
+	err := mgm.Coll(&modelV1.TaskGroup{}).SimpleFind(&taskGroups, bson.M{"username": userName})
+	if err != nil {
+		return nil, err
+	}
+	res := make([]string, 0)
+	for _, value := range taskGroups {
+		if value.Name == "" {
+			continue
+		}
+		res = append(res, value.Name)
+	}
+	return res, nil
 }

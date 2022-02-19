@@ -11,13 +11,13 @@ import (
 )
 
 type TaskController struct {
-	srv srvV1.TaskService
+	srv        srvV1.TaskService
 	statistics statisticsService.DayStatisticsService
 }
 
 func NewTaskController() *TaskController {
 	return &TaskController{
-		srv: srvV1.NewTaskService(),
+		srv:        srvV1.NewTaskService(),
 		statistics: statisticsService.NewDayStatisticsService(),
 	}
 }
@@ -117,7 +117,7 @@ func (t *TaskController) DeleteGroup(c *gin.Context) {
 	groupName := c.Param("name")
 	err := t.srv.DeleteTaskGroup(groupName, GetLoginUserName(c))
 	if err != nil {
-		ErrorResponse(c,400, err.Error())
+		ErrorResponse(c, 400, err.Error())
 		return
 	}
 	SuccessResponseWithoutData(c)
@@ -157,6 +157,15 @@ func (t *TaskController) DayStatistics(c *gin.Context) {
 		return
 	}
 	data, err := t.statistics.DayStatistics(time.Unix(int64(timestamp), 0), GetLoginUserName(c), refresh, showAll)
+	if err != nil {
+		ErrorResponse(c, 400, err.Error())
+		return
+	}
+	SuccessResponse(c, data)
+}
+
+func (t *TaskController) GetAllGroups(c *gin.Context) {
+	data, err := t.srv.GetAllGroups(GetLoginUserName(c))
 	if err != nil {
 		ErrorResponse(c, 400, err.Error())
 		return
