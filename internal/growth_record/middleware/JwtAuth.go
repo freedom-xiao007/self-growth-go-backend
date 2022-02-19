@@ -80,6 +80,7 @@ func JWTAuth() gin.HandlerFunc {
 				"data":   "{}",
 			})
 			c.Abort()
+			log.Error("请求未携带token，无权限访问")
 			return
 		}
 
@@ -93,6 +94,7 @@ func JWTAuth() gin.HandlerFunc {
 					"data":   nil,
 				})
 				c.Abort()
+				log.Error("token授权已过期，请重新申请授权")
 				return
 			}
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -101,6 +103,7 @@ func JWTAuth() gin.HandlerFunc {
 				"data":   nil,
 			})
 			c.Abort()
+			log.Error(err.Error())
 			return
 		}
 		c.Request.Header.Add("userName", claims.Email)
