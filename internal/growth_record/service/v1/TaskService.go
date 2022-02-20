@@ -46,12 +46,15 @@ func (t *taskService) GetTaskList(isComplete, groupName, username string) ([]mod
 	res := make([]modelV1.TaskConfig, 0)
 	for _, taskConfig := range taskConfigs {
 		var records []modelV1.TaskRecord
-		err = mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, bson.M{"username": username})
+		queryOfRecord := bson.M{"username": username, "configid": taskConfig.ID.Hex()}
+		err = mgm.Coll(&modelV1.TaskRecord{}).SimpleFind(&records, queryOfRecord)
 		if err != nil {
 			return nil, err
 		}
 		taskConfig.RefreshStatus(records)
 		if (isComplete == "" || isComplete == "true") && taskConfig.IsComplete {
+			res = append(res, taskConfig)
+		} else if isComplete == "false" && !taskConfig.IsComplete {
 			res = append(res, taskConfig)
 		}
 	}
