@@ -29,6 +29,7 @@ func InitRoute(router *gin.Engine) {
 	labelController := controller.NewLabelController()
 	achievementController := controller.NewAchievementController()
 	heroController := controller_game_text.NewHeroController()
+	dashboardController := controller.NewDashboardController()
 
 	// 路由分组、中间件、认证
 	v1 := router.Group("/v1", middleware.JWTAuth())
@@ -85,6 +86,11 @@ func InitRoute(router *gin.Engine) {
 			hero.POST("/modifyOwnHeroProperty", heroController.ModifyOwnHeroProperty)
 			hero.POST("/battleHero", heroController.BattleHero)
 			hero.GET("/battleLog", heroController.BattleLog)
+		}
+
+		dashboard := v1.Group("/dashboard")
+		{
+			dashboard.GET("/statistics", dashboardController.Statistics)
 		}
 	}
 
