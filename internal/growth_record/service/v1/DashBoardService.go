@@ -93,28 +93,58 @@ func activityGroupStatistics(username string, startTime, endTime time.Time) (lea
 	appTimeCache["学习"] = make(map[string]int)
 	appTimeCache["运动"] = make(map[string]int)
 	appTimeCache["睡觉"] = make(map[string]int)
+	latestActivity := ""
+	latestDate := time.Now()
+	endActivity := ""
+	endDate := time.Now()
 	for _, item := range phoneUseRecords {
 		activity := item.Activity
 		if _, ok := activity2Application[activity]; !ok {
 			continue
 		}
+
+		endActivity = activity
+		endDate = item.Date
+		if latestActivity == "" {
+			latestActivity = activity
+			latestDate = item.Date
+		} else if activity == latestActivity {
+			continue
+		}
+
+		speedTime := int(item.Date.Sub(latestDate).Minutes())
 		//uploadTime := item.Date
-		application := activity2Application[activity].Application
-		label := activity2Application[activity].Label
+		application := activity2Application[latestActivity].Application
+		label := activity2Application[latestActivity].Label
 
 		if label == "学习" {
-			learnTimeAmount = learnTimeAmount + 10
-			appTimeCache["学习"][application] = appTimeCache["学习"][application] + 10
-			continue
+			learnTimeAmount = learnTimeAmount + speedTime
+			appTimeCache["学习"][application] = appTimeCache["学习"][application] + speedTime
+		} else if label == "运动" {
+			runningTimeAmount = runningTimeAmount + speedTime
+			appTimeCache["运动"][application] = appTimeCache["运动"][application] + speedTime
+		} else if label == "睡觉" {
+			sleepTimeAmount = sleepTimeAmount + speedTime
+			appTimeCache["睡觉"][application] = appTimeCache["睡觉"][application] + speedTime
 		}
-		if label == "运动" {
-			runningTimeAmount = runningTimeAmount + 10
-			appTimeCache["运动"][application] = appTimeCache["运动"][application] + 10
-			continue
-		}
-		if label == "睡觉" {
-			sleepTimeAmount = sleepTimeAmount + 10
-			appTimeCache["睡觉"][application] = appTimeCache["睡觉"][application] + 10
+
+		latestActivity = activity
+		latestDate = item.Date
+	}
+
+	if endActivity != "" && !endDate.Equal(latestDate) {
+		speedTime := int(endDate.Sub(latestDate).Minutes())
+		application := activity2Application[latestActivity].Application
+		label := activity2Application[latestActivity].Label
+		if label == "学习" {
+			learnTimeAmount = learnTimeAmount + speedTime
+			appTimeCache["学习"][application] = appTimeCache["学习"][application] + speedTime
+		} else if label == "运动" {
+			runningTimeAmount = runningTimeAmount + speedTime
+			appTimeCache["运动"][application] = appTimeCache["运动"][application] + speedTime
+		} else if label == "睡觉" {
+			sleepTimeAmount = sleepTimeAmount + speedTime
+			appTimeCache["睡觉"][application] = appTimeCache["睡觉"][application] + speedTime
 		}
 	}
 
@@ -123,7 +153,7 @@ func activityGroupStatistics(username string, startTime, endTime time.Time) (lea
 		learnApps = append(learnApps, *modelV1.NewDashboardApp(appName, speedTime/60))
 	}
 	learnGroup.Name = "学习统计"
-	learnGroup.Minutes = learnTimeAmount / 60
+	learnGroup.Minutes = learnTimeAmount
 	learnGroup.Apps = learnApps
 
 	runningApps := make([]modelV1.DashboardApp, 0)
@@ -131,7 +161,7 @@ func activityGroupStatistics(username string, startTime, endTime time.Time) (lea
 		runningApps = append(runningApps, *modelV1.NewDashboardApp(appName, speedTime/60))
 	}
 	runningGroup.Name = "运动统计"
-	runningGroup.Minutes = runningTimeAmount / 60
+	runningGroup.Minutes = runningTimeAmount
 	runningGroup.Apps = runningApps
 
 	sleepApps := make([]modelV1.DashboardApp, 0)
@@ -139,7 +169,7 @@ func activityGroupStatistics(username string, startTime, endTime time.Time) (lea
 		sleepApps = append(sleepApps, *modelV1.NewDashboardApp(appName, speedTime/60))
 	}
 	sleepGroup.Name = "睡觉统计"
-	sleepGroup.Minutes = sleepTimeAmount / 60
+	sleepGroup.Minutes = sleepTimeAmount
 	sleepGroup.Apps = sleepApps
 
 	return learnGroup, runningGroup, sleepGroup, err
